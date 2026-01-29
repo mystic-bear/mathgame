@@ -2,11 +2,15 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>동물 숲의 수학 연금술사 : Final Fixed</title>
+    <title>동물 숲의 수학 연금술사 : Input Locking</title>
     <style>
         :root { --primary: #00897b; --secondary: #b2dfdb; --accent: #ff7043; --bg: #e0f2f1; --text: #004d40; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; margin: 0; padding: 10px; user-select: none; color: var(--text); }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; margin: 0; padding: 10px; user-select: none; color: var(--text); transition: 0.3s; }
         
+        /* [추가] 입력 차단 모드 스타일 */
+        body.blocking-mode { pointer-events: none; opacity: 0.85; cursor: wait !important; }
+        body.blocking-mode button, body.blocking-mode .inv-slot, body.blocking-mode .slot-box { cursor: wait !important; }
+
         #header { width: 760px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border: 3px solid var(--secondary); }
         .score-box { font-size: 20px; font-weight: bold; }
         
@@ -73,19 +77,23 @@
         .fail-anim { animation: pop-success 1.5s ease-out forwards; color: #f44336; }
         @keyframes pop-success { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
 
+        /* 여우 대사 팝업 (상단) */
         #fox-toast { display: none; position: fixed; top: 10%; background: rgba(0,0,0,0.85); color: white; padding: 15px 25px; border-radius: 30px; font-weight: bold; z-index: 2000; animation: fade-in 0.3s; white-space: pre-line; text-align: center; line-height: 1.5; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        
+        /* 턴 알림 팝업 (중앙) */
+        #turn-toast { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,77,64, 0.95); color: #fff; padding: 30px 50px; border-radius: 20px; font-size: 24px; font-weight: bold; z-index: 2100; animation: fade-in 0.3s; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 3px solid #b2dfdb; }
+
         @keyframes fade-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .item-card { background: #fff3e0; border: 2px solid #ffb74d; border-radius: 15px; padding: 15px; margin-top: 10px; animation: pop 0.5s; }
         .item-name { font-size: 18px; font-weight: bold; color: #ef6c00; margin: 10px 0; }
         .item-rank { font-size: 14px; color: #777; }
         
-        /* [수정됨] 글자 줄바꿈 방지 추가 */
         #collection-btn { 
             position: fixed; bottom: 20px; right: 20px; 
             background: #00796b; color: white; padding: 10px 20px; 
             border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
-            white-space: nowrap; /* 줄바꿈 방지 */
+            white-space: nowrap; 
         }
     </style>
 </head>
@@ -93,6 +101,7 @@
 
     <div id="feedback-overlay"></div>
     <div id="fox-toast">🦊 여우가 나타났다!</div>
+    <div id="turn-toast"></div>
 
     <div id="header">
         <div style="font-size: 22px;">🌲 동물 숲의 수학 연금술사</div>
@@ -111,7 +120,6 @@
                 <div class="inv-slot" onclick="handleItemClick(1)"></div>
                 <div class="inv-slot" onclick="handleItemClick(2)"></div>
             </div>
-            
             <div id="ice-pouch" onclick="useIcePotion()">
                 <div style="font-size:32px;">❄️</div>
                 <div class="ice-count" id="ice-count-text">0 / 2</div>
@@ -203,11 +211,32 @@
             startNewTurn();
         }
 
+        function setInputBlock(blocked) {
+            if (blocked) document.body.classList.add('blocking-mode');
+            else document.body.classList.remove('blocking-mode');
+        }
+
+        function showFoxToast(msg) {
+            const t = document.getElementById('fox-toast');
+            t.innerText = msg; t.style.display = 'block';
+            // [변경] 여우 대사 4초 유지
+            setTimeout(() => { t.style.display = 'none'; }, 4000);
+        }
+
+        function showTurnToast(msg) {
+            const t = document.getElementById('turn-toast');
+            t.innerText = msg; t.style.display = 'block';
+            t.style.transform = "translate(-50%, -50%)"; 
+            setTimeout(() => { t.style.display = 'none'; }, 4000);
+        }
+
         function startNewTurn() {
             const locs = ['fire', 'ice', 'herb']; state.blockedLoc = locs[Math.floor(Math.random() * locs.length)];
             const pots = ['red', 'blue', 'green', 'purple']; state.blockedPot = pots[Math.floor(Math.random() * pots.length)];
-            state.usedIceTurn = false; // 턴 시작시 초기화
-            showToast(`Turn ${state.turn} 알림 📢\n\n⛔ ${BLOCK_MSGS.loc[state.blockedLoc]}\n🛠️ ${BLOCK_MSGS.pot[state.blockedPot]}`);
+            state.usedIceTurn = false;
+            
+            showTurnToast(`📢 Turn ${state.turn} 시작!\n\n⛔ ${BLOCK_MSGS.loc[state.blockedLoc]}\n🛠️ ${BLOCK_MSGS.pot[state.blockedPot]}`);
+            setInputBlock(false); // [변경] 턴 알림과 함께 입력 차단 해제
             render();
         }
 
@@ -249,7 +278,6 @@
                         a={w:Math.floor(num/den), n:num%den, d:den}; if(a.n===0){a=a.w; mode='single';} else mode='mixed';
                     }
                 } 
-                // [FIXED] Equation logic sync
                 else if (type === 'wood') { 
                     let x=this.rnd(2,9), A=this.rnd(2,9), B=this.rnd(1,20); 
                     let isPlus = Math.random() < 0.5;
@@ -258,7 +286,6 @@
                 } else if (type === 'silver') { 
                     let x=this.rnd(2,9), A=this.rnd(2,9), C=this.rnd(3,9);
                     let B=this.rnd(1,10);
-                    // Ax - B = Cx - (Cx - (Ax - B)) 
                     let rhs = C*x - (A*x - B);
                     q=`${A}x - ${B} = ${C}x - ${rhs}`; a=x;
                 } else if (type === 'gold') { 
@@ -340,10 +367,15 @@
         }
 
         function foxTurn() {
+            // [변경] 여우 턴 시작 시 입력 차단 (Input Block)
+            setInputBlock(true);
+
             if(state.isFoxFrozen) {
                 showFeedback(true, "여우가 꽁꽁 얼어 움직이지 못합니다! ❄️");
-                state.isFoxFrozen = false; state.turn++; startNewTurn(); return;
+                setTimeout(() => { state.isFoxFrozen = false; state.turn++; startNewTurn(); }, 3000);
+                return;
             }
+
             const alive=state.treasures.filter(t=>t.status==='alive');
             if(alive.length>0) {
                 if(state.foxTarget===null || state.treasures[state.foxTarget].status!=='alive') state.foxTarget=alive[Math.floor(Math.random()*alive.length)].id;
@@ -357,17 +389,26 @@
                 let move=1, msg="🦊 여우가 살금살금 다가옵니다...";
                 if(Math.random() < totalChance) { move=2; msg="🚀 여우가 전력질주합니다! (2칸 이동)"; }
                 
-                t.prog+=move; showToast(msg);
+                t.prog+=move; 
+                showFoxToast(msg); // 4s display
+                
                 if(t.prog>=t.turns) {
                     t.status='fox'; state.foxTarget=null;
                     const reward=drawGacha(t.rank, false); state.fScore+=reward.pts;
                     showFeedback(false, `여우가 ${reward.name} 획득!`);
                 }
             }
+            
             if(state.treasures.every(t=>t.status!=='alive')) {
-                setTimeout(()=>{alert(`게임 종료!\n나: ${state.pScore} vs 여우: ${state.fScore}`);},500); return;
+                setTimeout(()=>{alert(`게임 종료!\n나: ${state.pScore} vs 여우: ${state.fScore}`);}, 500);
+                return;
             }
-            state.turn++; startNewTurn();
+
+            // [변경] 5초 딜레이 후 턴 넘김 (Wait 5s)
+            setTimeout(() => {
+                state.turn++; 
+                startNewTurn();
+            }, 5000);
         }
 
         function showResultModal(item, rank) {
@@ -380,7 +421,7 @@
             c.innerHTML=state.collection.length===0?"<p>아직 모은 아이템이 없어요!</p>":`<div style="max-height:300px;overflow-y:auto;">${state.collection.map(i=>`<div style="padding:5px;border-bottom:1px solid #eee;">${i.name} (${i.pts}점)</div>`).join('')}</div>`;
             document.getElementById('overlay').style.display='block'; document.getElementById('result-modal').style.display='block';
         }
-        function tryAdventure(id) { const t=state.treasures[id]; if(t.status!=='alive')return; if(!t.req.every(r=>state.inv.includes(r))){showToast("⚠️ 필요한 물약이 부족합니다!");return;} startMath(t.rank, id); }
+        function tryAdventure(id) { const t=state.treasures[id]; if(t.status!=='alive')return; if(!t.req.every(r=>state.inv.includes(r))){showFoxToast("⚠️ 필요한 물약이 부족합니다!");return;} startMath(t.rank, id); }
         function removeItem(i) { if(state.inv[i]&&confirm("이 물약을 버리시겠습니까?")){state.inv[i]=null;render();} }
         function render() {
             document.getElementById('p-score').innerText=state.pScore; document.getElementById('f-score').innerText=state.fScore; document.getElementById('turn-cnt').innerText=state.turn;
@@ -402,7 +443,6 @@
             });
         }
         function showFeedback(s,t){const el=document.getElementById('feedback-overlay');el.innerText=t;el.className=s?'success-anim':'fail-anim';setTimeout(()=>{el.className='';},1500);}
-        function showToast(m){const t=document.getElementById('fox-toast');t.innerText=m;t.style.display='block';setTimeout(()=>{t.style.display='none';},3500);}
         function closeAll(){document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById('overlay').style.display='none';}
         function closeResult(){closeAll();}
     </script>
