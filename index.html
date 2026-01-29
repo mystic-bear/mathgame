@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>동물 숲의 수학 연금술사 : Ice Pouch Update</title>
+    <title>동물 숲의 수학 연금술사 : Final Fixed</title>
     <style>
         :root { --primary: #00897b; --secondary: #b2dfdb; --accent: #ff7043; --bg: #e0f2f1; --text: #004d40; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; margin: 0; padding: 10px; user-select: none; color: var(--text); }
         
-        #header { width: 780px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border: 3px solid var(--secondary); }
+        #header { width: 760px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border: 3px solid var(--secondary); }
         .score-box { font-size: 20px; font-weight: bold; }
         
         #game-board { 
@@ -29,22 +29,19 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-2px, 2px); } 75% { transform: translate(2px, -2px); } }
 
-        /* 컨트롤 패널 레이아웃 수정 */
-        #control-panel { width: 780px; height: 130px; background: white; margin-top: 15px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; border: 3px solid var(--secondary); box-shadow: 0 5px 15px rgba(0,0,0,0.05); padding: 0 20px; box-sizing: border-box;}
-        #m-display { font-size: 14px; background: #e0f7fa; padding: 10px; border-radius: 15px; border: 2px solid #b2ebf2; font-weight: bold; width: 140px; }
+        /* 컨트롤 패널 & 인벤토리 */
+        #control-panel { width: 760px; height: 130px; background: white; margin-top: 15px; border-radius: 20px; display: flex; justify-content: space-around; align-items: center; border: 3px solid var(--secondary); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        #m-display { font-size: 15px; background: #e0f7fa; padding: 10px 15px; border-radius: 15px; border: 2px solid #b2ebf2; font-weight: bold; }
         
-        /* 인벤토리 + 얼음주머니 영역 */
-        .storage-area { display: flex; gap: 15px; align-items: center; }
-        
-        #inventory { display: flex; gap: 10px; background: #e0f2f1; padding: 10px; border-radius: 15px; border: 2px solid #b2dfdb; }
-        .inv-slot { width: 60px; height: 60px; border: 3px dashed #80cbc4; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; background: white; transition: 0.2s; }
+        #inventory { display: flex; gap: 20px; background: #e0f2f1; padding: 15px; border-radius: 15px; border: 2px solid #b2dfdb; }
+        .inv-slot { width: 65px; height: 65px; border: 3px dashed #80cbc4; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; background: white; transition: 0.2s; position: relative; }
         .inv-slot:hover { transform: scale(1.05); border-color: var(--accent); }
         .inv-slot.filled { border-style: solid; background: #fffde7; animation: pop 0.3s; border-color: #fbc02d; }
-
-        /* 얼음 포션 전용칸 */
+        
+        /* 얼음 포션 주머니 스타일 */
         #ice-pouch { 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 70px; height: 85px; background: #e1f5fe; border: 3px solid #29b6f6; border-radius: 15px; cursor: pointer; transition: 0.2s; 
+            width: 75px; height: 90px; background: #e1f5fe; border: 3px solid #29b6f6; border-radius: 15px; cursor: pointer; transition: 0.2s; 
         }
         #ice-pouch:hover { transform: scale(1.05); background: #b3e5fc; }
         #ice-pouch.disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: grayscale(1); }
@@ -83,7 +80,13 @@
         .item-name { font-size: 18px; font-weight: bold; color: #ef6c00; margin: 10px 0; }
         .item-rank { font-size: 14px; color: #777; }
         
-        #collection-btn { position: fixed; bottom: 20px; right: 20px; background: #00796b; color: white; padding: 10px 20px; border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        /* [수정됨] 글자 줄바꿈 방지 추가 */
+        #collection-btn { 
+            position: fixed; bottom: 20px; right: 20px; 
+            background: #00796b; color: white; padding: 10px 20px; 
+            border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+            white-space: nowrap; /* 줄바꿈 방지 */
+        }
     </style>
 </head>
 <body>
@@ -102,7 +105,7 @@
     <div id="control-panel">
         <div id="m-display">🔥 불꽃: <span id="cnt-fire">0</span><br>❄️ 얼음: <span id="cnt-ice">0</span><br>🌿 약초: <span id="cnt-herb">0</span></div>
         
-        <div class="storage-area">
+        <div style="display:flex; gap:15px; align-items: center;">
             <div id="inventory">
                 <div class="inv-slot" onclick="handleItemClick(0)"></div>
                 <div class="inv-slot" onclick="handleItemClick(1)"></div>
@@ -129,8 +132,8 @@
         <h3>📍 어디로 갈까요?</h3>
         <p style="color:#666; font-size:14px; margin-bottom:15px;">(⚠️ 지역 한 곳이 봉쇄되었습니다)</p>
         <div style="display:flex; gap:10px; justify-content: center;">
-            <button id="loc-fire" onclick="startMath('fire')" style="background:#ffccbc; width:100px; height:100px;">🔥 화산<br><span style="font-size:12px;">(곱셈 Hard)</span></button>
-            <button id="loc-ice" onclick="startMath('ice')" style="background:#b3e5fc; width:100px; height:100px;">❄️ 동굴<br><span style="font-size:12px;">(나눗셈 Hard)</span></button>
+            <button id="loc-fire" onclick="startMath('fire')" style="background:#ffccbc; width:100px; height:100px;">🔥 화산<br><span style="font-size:12px;">(곱셈)</span></button>
+            <button id="loc-ice" onclick="startMath('ice')" style="background:#b3e5fc; width:100px; height:100px;">❄️ 동굴<br><span style="font-size:12px;">(나눗셈)</span></button>
             <button id="loc-herb" onclick="startMath('herb')" style="background:#c8e6c9; width:100px; height:100px;">🌿 숲<br><span style="font-size:12px;">(심화)</span></button>
         </div>
         <button onclick="closeAll()" style="margin-top:20px; background:#ddd;">취소</button>
@@ -180,10 +183,7 @@
 
         const state = {
             turn: 1, pScore: 0, fScore: 0, mat: { fire: 0, ice: 0, herb: 0 }, 
-            inv: [null, null, null], // 3칸
-            icePotions: 0, // 얼음 포션 개수 (최대 2)
-            usedIceTurn: false, // 이번 턴에 얼음포션 사용 여부
-            isFoxFrozen: false, // 여우 얼림 상태
+            inv: [null, null, null], icePotions: 0, usedIceTurn: false, isFoxFrozen: false,
             treasures: [], foxTarget: null, blockedLoc: null, blockedPot: null, 
             collection: [], curProb: null, startTime: 0
         };
@@ -206,48 +206,32 @@
         function startNewTurn() {
             const locs = ['fire', 'ice', 'herb']; state.blockedLoc = locs[Math.floor(Math.random() * locs.length)];
             const pots = ['red', 'blue', 'green', 'purple']; state.blockedPot = pots[Math.floor(Math.random() * pots.length)];
-            
-            // 턴 시작 시 얼음 사용 기록 초기화
-            state.usedIceTurn = false;
-            
+            state.usedIceTurn = false; // 턴 시작시 초기화
             showToast(`Turn ${state.turn} 알림 📢\n\n⛔ ${BLOCK_MSGS.loc[state.blockedLoc]}\n🛠️ ${BLOCK_MSGS.pot[state.blockedPot]}`);
             render();
         }
 
-        // ==========================================
-        // ❄️ 얼음 포션 사용 로직
-        // ==========================================
         function useIcePotion() {
             if (state.icePotions <= 0) return;
-            if (state.usedIceTurn) {
-                alert("🚫 이번 턴에는 이미 얼음 포션을 사용했습니다!");
-                return;
-            }
+            if (state.usedIceTurn) { alert("🚫 이번 턴에는 이미 얼음 포션을 사용했습니다!"); return; }
             if (confirm("❄️ 얼음 포션을 사용하여 여우를 한 턴 멈추게 할까요?")) {
-                state.icePotions--;
-                state.isFoxFrozen = true;
-                state.usedIceTurn = true; // 1턴 1회 제한
-                showFeedback(true, "여우가 꽁꽁 얼었습니다! 🥶");
-                render();
+                state.icePotions--; state.isFoxFrozen = true; state.usedIceTurn = true;
+                showFeedback(true, "여우가 꽁꽁 얼었습니다! 🥶"); render();
             }
         }
 
         function handleItemClick(idx) {
             const item = state.inv[idx];
             if (item && confirm(`이 ${POTIONS[item].name}을 버리시겠습니까?`)) {
-                state.inv[idx] = null;
-                render();
+                state.inv[idx] = null; render();
             }
         }
 
         const MathEngine = {
             rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; },
             mkFrac(w, n, d) { return `${w > 0 ? w : ''}<span style="display:inline-block; vertical-align:middle; text-align:center; font-size:0.8em; margin-left:5px;"><span style="display:block; border-bottom:2px solid #333;">${n}</span><span>${d}</span></span>`; },
-            
             get(type) {
                 let q, a, mode = 'single';
-                
-                // [1. 채집]
                 if (type === 'fire') {
                     let n1 = this.rnd(100, 500), maxN2 = Math.floor(10000/n1); if(maxN2<10){n1=this.rnd(100,200);maxN2=Math.floor(10000/n1);} let n2=this.rnd(10,Math.min(99,maxN2)); q=`${n1} × ${n2} = ?`; a=n1*n2;
                 } else if (type === 'ice') {
@@ -255,10 +239,7 @@
                 } else if (type === 'herb') {
                     if(Math.random()<0.5){ let n1=this.rnd(102,999), n2=this.rnd(Math.max(10,Math.ceil(10000/n1)),99); q=`${n1} × ${n2} = ?`; a=n1*n2; }
                     else{ let quo=this.rnd(50,200), div=this.rnd(Math.max(10,Math.ceil(1000/quo)),99); q=`${quo*div} ÷ ${div} = ?`; a=quo; }
-                } 
-                
-                // [2. 포션]
-                else if (['red','blue','green','purple'].includes(type)) {
+                } else if (['red','blue','green','purple'].includes(type)) {
                     let d1=this.rnd(2,9), d2=this.rnd(2,9); if(d1===d2) d2=(d1%8)+2; let n1=this.rnd(1,d1-1), n2=this.rnd(1,d2-1);
                     if(type==='red'){ q=`${this.mkFrac(0,n1,d1)} + ${this.mkFrac(0,n2,d2)} = ?`; a={w:0,n:n1*d2+n2*d1,d:d1*d2}; mode='frac'; }
                     else if(type==='blue'){ let v1=n1/d1,v2=n2/d2; if(v1<v2){[n1,n2]=[n2,n1];[d1,d2]=[d2,d1];} q=`${this.mkFrac(0,n1,d1)} - ${this.mkFrac(0,n2,d2)} = ?`; a={w:0,n:n1*d2-n2*d1,d:d1*d2}; mode='frac'; }
@@ -268,37 +249,24 @@
                         a={w:Math.floor(num/den), n:num%den, d:den}; if(a.n===0){a=a.w; mode='single';} else mode='mixed';
                     }
                 } 
-                
-                // [3. 모험 - 버그 수정 완료]
+                // [FIXED] Equation logic sync
                 else if (type === 'wood') { 
-                    // [수정] 부호 동기화
                     let x=this.rnd(2,9), A=this.rnd(2,9), B=this.rnd(1,20); 
                     let isPlus = Math.random() < 0.5;
-                    let result = isPlus ? (A*x + B) : (A*x - B);
-                    q=`${A}x ${isPlus?'+':'-'} ${B} = ${result}`; 
-                    a=x;
-                } 
-                else if (type === 'silver') { 
-                    // [수정] 상수 B 고정 (기존엔 B값이 호출할 때마다 바뀌었음)
-                    let x=this.rnd(2,9), A=this.rnd(2,9), C=this.rnd(3,9); 
-                    let B = this.rnd(1,10); 
-                    // Ax - B = Cx - (Cx - (Ax - B)) 형태로 우변 계산
+                    let res = isPlus ? A*x+B : A*x-B;
+                    q=`${A}x ${isPlus?'+':'-'} ${B} = ${res}`; a=x;
+                } else if (type === 'silver') { 
+                    let x=this.rnd(2,9), A=this.rnd(2,9), C=this.rnd(3,9);
+                    let B=this.rnd(1,10);
+                    // Ax - B = Cx - (Cx - (Ax - B)) 
                     let rhs = C*x - (A*x - B);
-                    q=`${A}x - ${B} = ${C}x - ${rhs}`; 
-                    a=x; 
-                } 
-                else if (type === 'gold') { 
-                    let x=this.rnd(2,9), A=this.rnd(2,5), B=this.rnd(1,5); 
-                    if(Math.random() < 0.5) {
-                        q=`${A}(x + ${B}) = ${A*(x+B)}`; 
-                    } else {
-                        // x-B가 음수가 되지 않도록 x를 B보다 크게 설정
-                        x = B + this.rnd(1, 9);
-                        q=`${A}(x - ${B}) = ${A*(x-B)}`;
-                    }
-                    a=x; 
+                    q=`${A}x - ${B} = ${C}x - ${rhs}`; a=x;
+                } else if (type === 'gold') { 
+                    let x=this.rnd(2,9), A=this.rnd(2,5), B=this.rnd(1,5);
+                    if(Math.random()<0.5) { q=`${A}(x + ${B}) = ${A*(x+B)}`; }
+                    else { x=B+this.rnd(1,9); q=`${A}(x - ${B}) = ${A*(x-B)}`; }
+                    a=x;
                 }
-                
                 return { q, a, type, mode };
             }
         };
@@ -344,18 +312,10 @@
                 else if(POTIONS[prob.type]) {
                     Object.entries(POTIONS[prob.type].cost).forEach(([m,c])=>state.mat[m]-=c);
                     let msg="포션 완성! ⚗️";
-                    
-                    // 1. 일반 물약 (메인 인벤토리)
                     let idx = state.inv.indexOf(null); if(idx>-1) state.inv[idx]=prob.type;
-                    
-                    // 2. 스피드 보너스 (얼음 포션 - 전용 주머니)
                     if(isSpeed) {
-                        if(state.icePotions < 2) {
-                            state.icePotions++;
-                            msg = "⚡스피드 보너스! 얼음 포션 획득! ❄️";
-                        } else {
-                            msg = "⚡스피드 보너스! (얼음 주머니 꽉참)";
-                        }
+                        if(state.icePotions < 2) { state.icePotions++; msg = "⚡스피드 보너스! 얼음 포션 획득! ❄️"; } 
+                        else { msg = "⚡스피드 보너스! (얼음 주머니 꽉참)"; }
                     }
                     showFeedback(true, msg);
                 } 
@@ -379,40 +339,23 @@
             const list=SYLVANIAN_DB[tier], name=list[Math.floor(Math.random()*list.length)]; return {name, pts, tier};
         }
 
-        // ==========================================
-        // 🔥 여우 로직 (얼음 + 턴 기반 광폭화)
-        // ==========================================
         function foxTurn() {
-            // 1. 얼음 포션 체크
             if(state.isFoxFrozen) {
                 showFeedback(true, "여우가 꽁꽁 얼어 움직이지 못합니다! ❄️");
-                state.isFoxFrozen = false; // 상태 해제
-                state.turn++; startNewTurn(); // 바로 다음 턴으로
-                return;
+                state.isFoxFrozen = false; state.turn++; startNewTurn(); return;
             }
-
             const alive=state.treasures.filter(t=>t.status==='alive');
             if(alive.length>0) {
                 if(state.foxTarget===null || state.treasures[state.foxTarget].status!=='alive') state.foxTarget=alive[Math.floor(Math.random()*alive.length)].id;
                 const t=state.treasures[state.foxTarget];
                 
-                // 2. 확률 계산 (점수 차이 + 턴 경과)
                 const diff = state.pScore - state.fScore;
                 let scoreChance = 0; if(diff>=5) scoreChance=1.0; else if(diff===4) scoreChance=0.75; else if(diff===3) scoreChance=0.5; else if(diff===2) scoreChance=0.25;
-                
-                let turnChance = 0;
-                if(state.turn >= 20) turnChance = 0.75;
-                else if(state.turn >= 15) turnChance = 0.50;
-                else if(state.turn >= 10) turnChance = 0.25;
-
-                // 합산 확률 (최대 100%)
+                let turnChance = 0; if(state.turn >= 20) turnChance = 0.75; else if(state.turn >= 15) turnChance = 0.50; else if(state.turn >= 10) turnChance = 0.25;
                 let totalChance = Math.min(1.0, scoreChance + turnChance);
 
                 let move=1, msg="🦊 여우가 살금살금 다가옵니다...";
-                if(Math.random() < totalChance) {
-                    move=2; 
-                    msg="🚀 여우가 전력질주합니다! (2칸 이동)";
-                }
+                if(Math.random() < totalChance) { move=2; msg="🚀 여우가 전력질주합니다! (2칸 이동)"; }
                 
                 t.prog+=move; showToast(msg);
                 if(t.prog>=t.turns) {
@@ -442,21 +385,11 @@
         function render() {
             document.getElementById('p-score').innerText=state.pScore; document.getElementById('f-score').innerText=state.fScore; document.getElementById('turn-cnt').innerText=state.turn;
             document.getElementById('cnt-fire').innerText=state.mat.fire; document.getElementById('cnt-ice').innerText=state.mat.ice; document.getElementById('cnt-herb').innerText=state.mat.herb;
-            state.inv.forEach((item,i)=>{
-                const el=document.getElementById('inventory').children[i]; 
-                el.innerHTML=item?POTIONS[item].icon:''; 
-                el.className=`inv-slot ${item?'filled':''}`;
-            });
+            state.inv.forEach((item,i)=>{ const el=document.getElementById('inventory').children[i]; el.innerHTML=item?POTIONS[item].icon:''; el.className=`inv-slot ${item?'filled':''}`; });
             
-            // 얼음 주머니 UI 업데이트
-            const icePouch = document.getElementById('ice-pouch');
-            const iceCountText = document.getElementById('ice-count-text');
+            const icePouch = document.getElementById('ice-pouch'); const iceCountText = document.getElementById('ice-count-text');
             iceCountText.innerText = `${state.icePotions} / 2`;
-            if(state.icePotions > 0 && !state.usedIceTurn) {
-                icePouch.classList.remove('disabled');
-            } else {
-                icePouch.classList.add('disabled');
-            }
+            if(state.icePotions > 0 && !state.usedIceTurn) { icePouch.classList.remove('disabled'); } else { icePouch.classList.add('disabled'); }
 
             const board=document.getElementById('game-board'); board.innerHTML='';
             state.treasures.forEach(t=>{
