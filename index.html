@@ -2,17 +2,17 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>동물 숲의 수학 연금술사 : Score Fix</title>
+    <title>동물 숲의 수학 연금술사 : Ice Pouch Update</title>
     <style>
-        :root { --primary: #4db6ac; --secondary: #a5d6a7; --accent: #ffab91; --bg: #fffbe6; --text: #5d4037; }
+        :root { --primary: #00897b; --secondary: #b2dfdb; --accent: #ff7043; --bg: #e0f2f1; --text: #004d40; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; margin: 0; padding: 10px; user-select: none; color: var(--text); }
         
-        #header { width: 760px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border: 3px solid var(--secondary); }
+        #header { width: 780px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border: 3px solid var(--secondary); }
         .score-box { font-size: 20px; font-weight: bold; }
         
         #game-board { 
             display: grid; grid-template-columns: repeat(5, 140px); grid-template-rows: repeat(2, 160px); 
-            gap: 15px; background: white; padding: 20px; border-radius: 25px; border: 5px solid #ffcc80; 
+            gap: 15px; background: white; padding: 20px; border-radius: 25px; border: 5px solid #80cbc4; 
             box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative;
         }
         
@@ -29,18 +29,34 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-2px, 2px); } 75% { transform: translate(2px, -2px); } }
 
-        #control-panel { width: 760px; height: 130px; background: white; margin-top: 15px; border-radius: 20px; display: flex; justify-content: space-around; align-items: center; border: 3px solid var(--secondary); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        #m-display { font-size: 15px; background: #e8f5e9; padding: 10px 15px; border-radius: 15px; border: 2px solid #c8e6c9; font-weight: bold; }
-        #inventory { display: flex; gap: 8px; background: #fff3e0; padding: 10px; border-radius: 15px; }
-        .inv-slot { width: 55px; height: 55px; border: 2px dashed #ffb74d; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; background: white; }
-        .inv-slot.filled { border-style: solid; background: #fff8e1; animation: pop 0.3s; }
+        /* 컨트롤 패널 레이아웃 수정 */
+        #control-panel { width: 780px; height: 130px; background: white; margin-top: 15px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; border: 3px solid var(--secondary); box-shadow: 0 5px 15px rgba(0,0,0,0.05); padding: 0 20px; box-sizing: border-box;}
+        #m-display { font-size: 14px; background: #e0f7fa; padding: 10px; border-radius: 15px; border: 2px solid #b2ebf2; font-weight: bold; width: 140px; }
+        
+        /* 인벤토리 + 얼음주머니 영역 */
+        .storage-area { display: flex; gap: 15px; align-items: center; }
+        
+        #inventory { display: flex; gap: 10px; background: #e0f2f1; padding: 10px; border-radius: 15px; border: 2px solid #b2dfdb; }
+        .inv-slot { width: 60px; height: 60px; border: 3px dashed #80cbc4; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; background: white; transition: 0.2s; }
+        .inv-slot:hover { transform: scale(1.05); border-color: var(--accent); }
+        .inv-slot.filled { border-style: solid; background: #fffde7; animation: pop 0.3s; border-color: #fbc02d; }
 
-        button { padding: 12px 20px; border-radius: 12px; border: none; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+        /* 얼음 포션 전용칸 */
+        #ice-pouch { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 70px; height: 85px; background: #e1f5fe; border: 3px solid #29b6f6; border-radius: 15px; cursor: pointer; transition: 0.2s; 
+        }
+        #ice-pouch:hover { transform: scale(1.05); background: #b3e5fc; }
+        #ice-pouch.disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: grayscale(1); }
+        .ice-count { font-size: 14px; font-weight: bold; color: #0277bd; margin-top: 5px; }
+
+        .btn-group { display: flex; gap: 8px; flex-direction: column; }
+        button { padding: 10px 15px; border-radius: 12px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.1); width: 140px; }
         button:active { transform: translateY(4px); box-shadow: none; }
-        .btn-green { background: #81c784; color: white; }
-        .btn-orange { background: #ffb74d; color: white; }
-        .btn-disabled { background: #e0e0e0; color: #999; cursor: not-allowed; transform: none !important; box-shadow: none !important; position: relative; }
-        .btn-disabled::after { content: "⛔"; position: absolute; top: -10px; right: -10px; font-size: 20px; }
+        .btn-green { background: #26a69a; color: white; }
+        .btn-orange { background: #ff7043; color: white; }
+        .btn-disabled { background: #cfd8dc; color: #90a4ae; cursor: not-allowed; transform: none !important; box-shadow: none !important; position: relative; }
+        .btn-disabled::after { content: "⛔"; position: absolute; top: -8px; right: -5px; font-size: 18px; }
 
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; backdrop-filter: blur(3px); }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 25px; z-index: 100; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.2); min-width: 400px; border: 4px solid var(--primary); }
@@ -67,7 +83,7 @@
         .item-name { font-size: 18px; font-weight: bold; color: #ef6c00; margin: 10px 0; }
         .item-rank { font-size: 14px; color: #777; }
         
-        #collection-btn { position: fixed; bottom: 20px; right: 20px; background: #795548; color: white; padding: 10px 20px; border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        #collection-btn { position: fixed; bottom: 20px; right: 20px; background: #00796b; color: white; padding: 10px 20px; border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -77,24 +93,31 @@
 
     <div id="header">
         <div style="font-size: 22px;">🌲 동물 숲의 수학 연금술사</div>
-        <div class="score-box">🐰 나: <span id="p-score" style="color:#2e7d32;">0</span>점 vs 🦊 여우: <span id="f-score" style="color:#c62828;">0</span>점</div>
+        <div class="score-box">🐰 나: <span id="p-score" style="color:#00796b;">0</span>점 vs 🦊 여우: <span id="f-score" style="color:#c62828;">0</span>점</div>
         <div style="font-size: 18px; color: #555;">Turn <span id="turn-cnt">1</span></div>
     </div>
     
     <div id="game-board"></div>
 
     <div id="control-panel">
-        <div id="m-display">🔥 불꽃열매: <span id="cnt-fire">0</span><br>❄️ 얼음조각: <span id="cnt-ice">0</span><br>🌿 신비약초: <span id="cnt-herb">0</span></div>
-        <div id="inventory">
-            <div class="inv-slot" onclick="removeItem(0)"></div>
-            <div class="inv-slot" onclick="removeItem(1)"></div>
-            <div class="inv-slot" onclick="removeItem(2)"></div>
-            <div class="inv-slot" onclick="removeItem(3)"></div>
-            <div class="inv-slot" onclick="removeItem(4)"></div>
+        <div id="m-display">🔥 불꽃: <span id="cnt-fire">0</span><br>❄️ 얼음: <span id="cnt-ice">0</span><br>🌿 약초: <span id="cnt-herb">0</span></div>
+        
+        <div class="storage-area">
+            <div id="inventory">
+                <div class="inv-slot" onclick="handleItemClick(0)"></div>
+                <div class="inv-slot" onclick="handleItemClick(1)"></div>
+                <div class="inv-slot" onclick="handleItemClick(2)"></div>
+            </div>
+            
+            <div id="ice-pouch" onclick="useIcePotion()">
+                <div style="font-size:32px;">❄️</div>
+                <div class="ice-count" id="ice-count-text">0 / 2</div>
+            </div>
         </div>
-        <div style="display:flex; gap:10px; flex-direction: column;">
-            <button id="btn-gather" class="btn-orange" onclick="openGatherModal()">🌿 재료 채집하기</button>
-            <button id="btn-craft" class="btn-green" onclick="openCraftModal()">⚗️ 물약 만들기</button>
+
+        <div class="btn-group">
+            <button id="btn-gather" class="btn-orange" onclick="openGatherModal()">🌿 재료 채집</button>
+            <button id="btn-craft" class="btn-green" onclick="openCraftModal()">⚗️ 물약 제작</button>
         </div>
     </div>
 
@@ -106,8 +129,8 @@
         <h3>📍 어디로 갈까요?</h3>
         <p style="color:#666; font-size:14px; margin-bottom:15px;">(⚠️ 지역 한 곳이 봉쇄되었습니다)</p>
         <div style="display:flex; gap:10px; justify-content: center;">
-            <button id="loc-fire" onclick="startMath('fire')" style="background:#ffccbc; width:100px; height:100px;">🔥 화산<br><span style="font-size:12px;">(곱셈)</span></button>
-            <button id="loc-ice" onclick="startMath('ice')" style="background:#b3e5fc; width:100px; height:100px;">❄️ 동굴<br><span style="font-size:12px;">(나눗셈)</span></button>
+            <button id="loc-fire" onclick="startMath('fire')" style="background:#ffccbc; width:100px; height:100px;">🔥 화산<br><span style="font-size:12px;">(곱셈 Hard)</span></button>
+            <button id="loc-ice" onclick="startMath('ice')" style="background:#b3e5fc; width:100px; height:100px;">❄️ 동굴<br><span style="font-size:12px;">(나눗셈 Hard)</span></button>
             <button id="loc-herb" onclick="startMath('herb')" style="background:#c8e6c9; width:100px; height:100px;">🌿 숲<br><span style="font-size:12px;">(심화)</span></button>
         </div>
         <button onclick="closeAll()" style="margin-top:20px; background:#ddd;">취소</button>
@@ -125,21 +148,8 @@
         <div id="timer-bar" style="height:5px; background:#eee; width:100%; margin-bottom:15px;"><div id="timer-fill" style="height:100%; background:#ff9800; width:100%; transition:width 1s linear;"></div></div>
         
         <div id="input-single" style="display:none;"><input type="number" id="ans-single" placeholder="정답"></div>
-        
-        <div id="input-frac" class="fraction-box" style="display:none;">
-            <input type="number" id="ans-num" placeholder="분자">
-            <div class="frac-line"></div>
-            <input type="number" id="ans-den" placeholder="분모">
-        </div>
-
-        <div id="input-mixed" class="mixed-box" style="display:none;">
-            <input type="number" id="ans-mixed-w" class="whole-num-input" placeholder="자연수">
-            <div class="fraction-box">
-                <input type="number" id="ans-mixed-n" placeholder="분자">
-                <div class="frac-line" style="width:70px;"></div>
-                <input type="number" id="ans-mixed-d" placeholder="분모">
-            </div>
-        </div>
+        <div id="input-frac" class="fraction-box" style="display:none;"><input type="number" id="ans-num" placeholder="분자"><div class="frac-line"></div><input type="number" id="ans-den" placeholder="분모"></div>
+        <div id="input-mixed" class="mixed-box" style="display:none;"><input type="number" id="ans-mixed-w" class="whole-num-input" placeholder="자연수"><div class="fraction-box"><input type="number" id="ans-mixed-n" placeholder="분자"><div class="frac-line" style="width:70px;"></div><input type="number" id="ans-mixed-d" placeholder="분모"></div></div>
 
         <button onclick="submitAnswer()" class="btn-green" style="width:100%; margin-top:20px; padding:15px;">✨ 정답 확인!</button>
     </div>
@@ -169,8 +179,13 @@
         };
 
         const state = {
-            turn: 1, pScore: 0, fScore: 0, mat: { fire: 0, ice: 0, herb: 0 }, inv: [null, null, null, null, null],
-            treasures: [], foxTarget: null, blockedLoc: null, blockedPot: null, collection: [], curProb: null, startTime: 0
+            turn: 1, pScore: 0, fScore: 0, mat: { fire: 0, ice: 0, herb: 0 }, 
+            inv: [null, null, null], // 3칸
+            icePotions: 0, // 얼음 포션 개수 (최대 2)
+            usedIceTurn: false, // 이번 턴에 얼음포션 사용 여부
+            isFoxFrozen: false, // 여우 얼림 상태
+            treasures: [], foxTarget: null, blockedLoc: null, blockedPot: null, 
+            collection: [], curProb: null, startTime: 0
         };
 
         window.onload = init;
@@ -189,207 +204,232 @@
         }
 
         function startNewTurn() {
-            const locs = ['fire', 'ice', 'herb'];
-            state.blockedLoc = locs[Math.floor(Math.random() * locs.length)];
-            const pots = ['red', 'blue', 'green', 'purple'];
-            state.blockedPot = pots[Math.floor(Math.random() * pots.length)];
+            const locs = ['fire', 'ice', 'herb']; state.blockedLoc = locs[Math.floor(Math.random() * locs.length)];
+            const pots = ['red', 'blue', 'green', 'purple']; state.blockedPot = pots[Math.floor(Math.random() * pots.length)];
+            
+            // 턴 시작 시 얼음 사용 기록 초기화
+            state.usedIceTurn = false;
             
             showToast(`Turn ${state.turn} 알림 📢\n\n⛔ ${BLOCK_MSGS.loc[state.blockedLoc]}\n🛠️ ${BLOCK_MSGS.pot[state.blockedPot]}`);
             render();
         }
 
+        // ==========================================
+        // ❄️ 얼음 포션 사용 로직
+        // ==========================================
+        function useIcePotion() {
+            if (state.icePotions <= 0) return;
+            if (state.usedIceTurn) {
+                alert("🚫 이번 턴에는 이미 얼음 포션을 사용했습니다!");
+                return;
+            }
+            if (confirm("❄️ 얼음 포션을 사용하여 여우를 한 턴 멈추게 할까요?")) {
+                state.icePotions--;
+                state.isFoxFrozen = true;
+                state.usedIceTurn = true; // 1턴 1회 제한
+                showFeedback(true, "여우가 꽁꽁 얼었습니다! 🥶");
+                render();
+            }
+        }
+
+        function handleItemClick(idx) {
+            const item = state.inv[idx];
+            if (item && confirm(`이 ${POTIONS[item].name}을 버리시겠습니까?`)) {
+                state.inv[idx] = null;
+                render();
+            }
+        }
+
         const MathEngine = {
             rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; },
             mkFrac(w, n, d) { return `${w > 0 ? w : ''}<span style="display:inline-block; vertical-align:middle; text-align:center; font-size:0.8em; margin-left:5px;"><span style="display:block; border-bottom:2px solid #333;">${n}</span><span>${d}</span></span>`; },
-
+            
             get(type) {
                 let q, a, mode = 'single';
+                
+                // [1. 채집]
                 if (type === 'fire') {
-                    let n1 = this.rnd(100, 500); let maxN2 = Math.floor(10000 / n1);
-                    if(maxN2 < 10) { n1 = this.rnd(100, 200); maxN2 = Math.floor(10000/n1); }
-                    let n2 = this.rnd(10, Math.min(99, maxN2)); q = `${n1} × ${n2} = ?`; a = n1 * n2;
+                    let n1 = this.rnd(100, 500), maxN2 = Math.floor(10000/n1); if(maxN2<10){n1=this.rnd(100,200);maxN2=Math.floor(10000/n1);} let n2=this.rnd(10,Math.min(99,maxN2)); q=`${n1} × ${n2} = ?`; a=n1*n2;
                 } else if (type === 'ice') {
-                    let quotient = this.rnd(11, 50); let minDiv = Math.ceil(1000 / quotient);
-                    let divisor = this.rnd(Math.max(10, minDiv), 99);
-                    q = `${quotient * divisor} ÷ ${divisor} = ?`; a = quotient;
+                    let quo=this.rnd(11,50), div=this.rnd(Math.max(10,Math.ceil(1000/quo)),99); q=`${quo*div} ÷ ${div} = ?`; a=quo;
                 } else if (type === 'herb') {
-                    if(Math.random()<0.5) {
-                        let n1 = this.rnd(102, 999); let minN2 = Math.ceil(10000 / n1);
-                        let n2 = this.rnd(Math.max(10, minN2), 99); q = `${n1} × ${n2} = ?`; a = n1*n2;
+                    if(Math.random()<0.5){ let n1=this.rnd(102,999), n2=this.rnd(Math.max(10,Math.ceil(10000/n1)),99); q=`${n1} × ${n2} = ?`; a=n1*n2; }
+                    else{ let quo=this.rnd(50,200), div=this.rnd(Math.max(10,Math.ceil(1000/quo)),99); q=`${quo*div} ÷ ${div} = ?`; a=quo; }
+                } 
+                
+                // [2. 포션]
+                else if (['red','blue','green','purple'].includes(type)) {
+                    let d1=this.rnd(2,9), d2=this.rnd(2,9); if(d1===d2) d2=(d1%8)+2; let n1=this.rnd(1,d1-1), n2=this.rnd(1,d2-1);
+                    if(type==='red'){ q=`${this.mkFrac(0,n1,d1)} + ${this.mkFrac(0,n2,d2)} = ?`; a={w:0,n:n1*d2+n2*d1,d:d1*d2}; mode='frac'; }
+                    else if(type==='blue'){ let v1=n1/d1,v2=n2/d2; if(v1<v2){[n1,n2]=[n2,n1];[d1,d2]=[d2,d1];} q=`${this.mkFrac(0,n1,d1)} - ${this.mkFrac(0,n2,d2)} = ?`; a={w:0,n:n1*d2-n2*d1,d:d1*d2}; mode='frac'; }
+                    else { let w1=this.rnd(1,3), w2=this.rnd(1,3), plus=Math.random()<0.5; if(!plus){ let v1=w1+n1/d1,v2=w2+n2/d2; if(v1<v2){[w1,w2]=[w2,w1];[n1,n2]=[n2,n1];[d1,d2]=[d2,d1];} }
+                        q=`${this.mkFrac(w1,n1,d1)} ${plus?'+':'-'} ${this.mkFrac(w2,n2,d2)} = ?`; 
+                        let num = plus ? ((w1*d1+n1)*d2 + (w2*d2+n2)*d1) : ((w1*d1+n1)*d2 - (w2*d2+n2)*d1), den=d1*d2;
+                        a={w:Math.floor(num/den), n:num%den, d:den}; if(a.n===0){a=a.w; mode='single';} else mode='mixed';
+                    }
+                } 
+                
+                // [3. 모험 - 버그 수정 완료]
+                else if (type === 'wood') { 
+                    // [수정] 부호 동기화
+                    let x=this.rnd(2,9), A=this.rnd(2,9), B=this.rnd(1,20); 
+                    let isPlus = Math.random() < 0.5;
+                    let result = isPlus ? (A*x + B) : (A*x - B);
+                    q=`${A}x ${isPlus?'+':'-'} ${B} = ${result}`; 
+                    a=x;
+                } 
+                else if (type === 'silver') { 
+                    // [수정] 상수 B 고정 (기존엔 B값이 호출할 때마다 바뀌었음)
+                    let x=this.rnd(2,9), A=this.rnd(2,9), C=this.rnd(3,9); 
+                    let B = this.rnd(1,10); 
+                    // Ax - B = Cx - (Cx - (Ax - B)) 형태로 우변 계산
+                    let rhs = C*x - (A*x - B);
+                    q=`${A}x - ${B} = ${C}x - ${rhs}`; 
+                    a=x; 
+                } 
+                else if (type === 'gold') { 
+                    let x=this.rnd(2,9), A=this.rnd(2,5), B=this.rnd(1,5); 
+                    if(Math.random() < 0.5) {
+                        q=`${A}(x + ${B}) = ${A*(x+B)}`; 
                     } else {
-                        let quotient = this.rnd(50, 200); let minDiv = Math.ceil(1000 / quotient);
-                        let divisor = this.rnd(Math.max(10, minDiv), 99); q = `${quotient * divisor} ÷ ${divisor} = ?`; a = quotient;
+                        // x-B가 음수가 되지 않도록 x를 B보다 크게 설정
+                        x = B + this.rnd(1, 9);
+                        q=`${A}(x - ${B}) = ${A*(x-B)}`;
                     }
-                } else if (type === 'red' || type === 'blue' || type === 'green' || type === 'purple') {
-                    let d1 = this.rnd(2, 9), d2 = this.rnd(2, 9); if(d1 === d2) d2 = (d1 % 8) + 2; 
-                    let n1 = this.rnd(1, d1-1), n2 = this.rnd(1, d2-1);
-                    if (type === 'red') {
-                        q = `${this.mkFrac(0, n1, d1)} + ${this.mkFrac(0, n2, d2)} = ?`;
-                        a = { w:0, n: n1*d2 + n2*d1, d: d1*d2 }; mode = 'frac';
-                    } else if (type === 'blue') {
-                        let v1 = n1/d1, v2 = n2/d2; if(v1 < v2) { [n1, n2] = [n2, n1]; [d1, d2] = [d2, d1]; }
-                        q = `${this.mkFrac(0, n1, d1)} - ${this.mkFrac(0, n2, d2)} = ?`;
-                        a = { w:0, n: n1*d2 - n2*d1, d: d1*d2 }; mode = 'frac';
-                    } else if (type === 'green' || type === 'purple') {
-                        let w1 = this.rnd(1, 3), w2 = this.rnd(1, 3);
-                        let isPlus = Math.random() < 0.5;
-                        if (!isPlus) {
-                            let val1 = w1 + n1/d1, val2 = w2 + n2/d2; if(val1 < val2) { [w1, w2] = [w2, w1]; [n1, n2] = [n2, n1]; [d1, d2] = [d2, d1]; }
-                        }
-                        let op = isPlus ? '+' : '-';
-                        q = `${this.mkFrac(w1, n1, d1)} ${op} ${this.mkFrac(w2, n2, d2)} = ?`;
-                        let resNum = isPlus ? ((w1*d1+n1)*d2 + (w2*d2+n2)*d1) : ((w1*d1+n1)*d2 - (w2*d2+n2)*d1);
-                        let resDen = d1*d2; let whole = Math.floor(resNum / resDen); let rem = resNum % resDen;
-                        a = { w: whole, n: rem, d: resDen }; if(rem === 0) { a = whole; mode = 'single'; } else { mode = 'mixed'; }
-                    }
-                } else if (type === 'wood') { 
-                    let x = this.rnd(2, 9), c1 = this.rnd(2, 9), c2 = this.rnd(1, 20); q = `${c1}x + ${c2} = ${c1*x+c2}`; a = x;
-                } else if (type === 'silver') { 
-                    let x = this.rnd(2, 9), c1 = this.rnd(3, 9), c2 = this.rnd(1, 10); q = `${c1}x - ${c2} = ${c1*x-c2}`; a = x;
-                } else if (type === 'gold') {
-                    let x = this.rnd(2, 9), c1 = this.rnd(2, 5), c2 = this.rnd(1, 5); q = `${c1}(x + ${c2}) = ${c1*(x+c2)}`; a = x;
+                    a=x; 
                 }
+                
                 return { q, a, type, mode };
             }
         };
 
         function openGatherModal() {
-            document.getElementById('overlay').style.display = 'block'; document.getElementById('gather-modal').style.display = 'block';
-            ['fire', 'ice', 'herb'].forEach(t => { 
-                const btn=document.getElementById(`loc-${t}`); 
-                if(state.blockedLoc === t){ btn.classList.add('btn-disabled'); btn.disabled=true; } else{ btn.classList.remove('btn-disabled'); btn.disabled=false; } 
-            });
+            document.getElementById('overlay').style.display='block'; document.getElementById('gather-modal').style.display='block';
+            ['fire','ice','herb'].forEach(t=>{ const btn=document.getElementById(`loc-${t}`); if(state.blockedLoc===t){btn.classList.add('btn-disabled');btn.disabled=true;}else{btn.classList.remove('btn-disabled');btn.disabled=false;} });
         }
-
         function openCraftModal() {
             document.getElementById('overlay').style.display='block'; document.getElementById('craft-modal').style.display='block';
-            const list = document.getElementById('recipe-list'); list.innerHTML = '';
+            const list=document.getElementById('recipe-list'); list.innerHTML='';
             Object.entries(POTIONS).forEach(([key, p]) => {
                 let canCraft = Object.entries(p.cost).every(([m, c]) => state.mat[m] >= c);
-                if(!state.inv.includes(null)) canCraft = false;
-                let isBlocked = (state.blockedPot === key);
-                let costStr = []; Object.entries(p.cost).forEach(([m,c]) => { costStr.push(`${m==='fire'?'🔥':m==='ice'?'❄️':'🌿'}${c}`); });
-                list.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #eee;opacity:${(canCraft && !isBlocked)?1:0.5}"><div><span style="font-size:24px;">${p.icon}</span> ${p.name} <small>(${costStr.join(' ')})</small></div><button class="btn-green ${isBlocked?'btn-disabled':''}" onclick="startMath('${key}')" ${(canCraft && !isBlocked)?'':'disabled'}>${isBlocked ? '수리중' : '제작'}</button></div>`;
+                if(!state.inv.includes(null)) canCraft=false; let isBlocked=(state.blockedPot===key);
+                let costStr=[]; Object.entries(p.cost).forEach(([m,c])=>{costStr.push(`${m==='fire'?'🔥':m==='ice'?'❄️':'🌿'}${c}`)});
+                list.innerHTML+=`<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #eee;opacity:${(canCraft&&!isBlocked)?1:0.5}"><div><span style="font-size:24px;">${p.icon}</span> ${p.name} <small>(${costStr.join(' ')})</small></div><button class="btn-green ${isBlocked?'btn-disabled':''}" onclick="startMath('${key}')" ${(canCraft&&!isBlocked)?'':'disabled'}>${isBlocked?'수리중':'제작'}</button></div>`;
             });
         }
-        
-        function startMath(type, targetId = null) {
-            closeAll();
-            const prob = MathEngine.get(type);
-            state.curProb = { ...prob, targetId };
-            document.getElementById('q-text').innerHTML = `Q. ${prob.q}`;
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('math-modal').style.display = 'block';
-            
-            const s = document.getElementById('input-single'); const f = document.getElementById('input-frac'); const m = document.getElementById('input-mixed');
-            s.style.display = 'none'; f.style.display = 'none'; m.style.display = 'none';
-            document.querySelectorAll('input').forEach(i => i.value = '');
-
-            if (prob.mode === 'mixed') m.style.display = 'flex'; else if (prob.mode === 'frac') f.style.display = 'flex'; else s.style.display = 'block';
-
-            state.startTime = Date.now();
-            const bar = document.getElementById('timer-fill'); 
-            const limit = (['herb', 'purple', 'gold'].includes(type)) ? 30 : 15;
-            bar.style.transition='none'; bar.style.width='100%'; 
-            setTimeout(()=>{ bar.style.transition=`width ${limit}s linear`; bar.style.width='0%'; }, 50);
+        function startMath(type, targetId=null) {
+            closeAll(); const prob=MathEngine.get(type); state.curProb={...prob, targetId};
+            document.getElementById('q-text').innerHTML=`Q. ${prob.q}`;
+            document.getElementById('overlay').style.display='block'; document.getElementById('math-modal').style.display='block';
+            document.getElementById('input-single').style.display='none'; document.getElementById('input-frac').style.display='none'; document.getElementById('input-mixed').style.display='none';
+            document.querySelectorAll('input').forEach(i=>i.value='');
+            if(prob.mode==='mixed') document.getElementById('input-mixed').style.display='flex'; else if(prob.mode==='frac') document.getElementById('input-frac').style.display='flex'; else document.getElementById('input-single').style.display='block';
+            state.startTime=Date.now(); const limit=(['herb','purple','gold'].includes(type))?30:15;
+            const bar=document.getElementById('timer-fill'); bar.style.transition='none'; bar.style.width='100%'; setTimeout(()=>{bar.style.transition=`width ${limit}s linear`;bar.style.width='0%';},50);
         }
 
         function submitAnswer() {
-            const prob = state.curProb; const elapsed = (Date.now() - state.startTime) / 1000; let correct = false;
-            if (prob.mode === 'mixed') {
-                const w = parseInt(document.getElementById('ans-mixed-w').value) || 0;
-                const n = parseInt(document.getElementById('ans-mixed-n').value) || 0;
-                const d = parseInt(document.getElementById('ans-mixed-d').value) || 1;
-                let userVal = w + n/d; let ansVal = prob.a.w + prob.a.n/prob.a.d;
-                if(Math.abs(userVal - ansVal) < 0.001) correct = true;
-            } else if (prob.mode === 'frac') {
-                const n = parseInt(document.getElementById('ans-num').value);
-                const d = parseInt(document.getElementById('ans-den').value);
-                if(Math.abs((n/d) - (prob.a.n/prob.a.d)) < 0.001) correct = true;
-            } else {
-                const ans = parseInt(document.getElementById('ans-single').value);
-                if(ans === prob.a) correct = true;
-            }
+            const prob=state.curProb, elapsed=(Date.now()-state.startTime)/1000; let correct=false;
+            if(prob.mode==='mixed'){ const w=parseInt(document.getElementById('ans-mixed-w').value)||0, n=parseInt(document.getElementById('ans-mixed-n').value)||0, d=parseInt(document.getElementById('ans-mixed-d').value)||1; if(Math.abs((w+n/d)-(prob.a.w+prob.a.n/prob.a.d))<0.001) correct=true; }
+            else if(prob.mode==='frac'){ const n=parseInt(document.getElementById('ans-num').value), d=parseInt(document.getElementById('ans-den').value); if(Math.abs((n/d)-(prob.a.n/prob.a.d))<0.001) correct=true; }
+            else { if(parseInt(document.getElementById('ans-single').value)===prob.a) correct=true; }
 
             closeAll();
-            if (correct) {
-                const limit = (['herb', 'purple', 'gold'].includes(prob.type)) ? 30 : 15;
-                const isSpeed = elapsed <= limit;
-
-                if (['fire','ice','herb'].includes(prob.type)) {
+            if(correct) {
+                const limit=(['herb','purple','gold'].includes(prob.type))?30:15, isSpeed=elapsed<=limit;
+                if(['fire','ice','herb'].includes(prob.type)) {
                     let amount=1, msg="재료 획득! +1"; if(isSpeed){amount=2;msg="⚡스피드 보너스! 재료 x2";}
                     state.mat[prob.type]+=amount; showFeedback(true, msg);
-                } else if (POTIONS[prob.type]) {
+                } 
+                else if(POTIONS[prob.type]) {
                     Object.entries(POTIONS[prob.type].cost).forEach(([m,c])=>state.mat[m]-=c);
-                    let amount=1, msg="포션 완성! ⚗️"; if(isSpeed){amount=2;msg="⚡스피드 보너스! 포션 x2";}
-                    for(let k=0; k<amount; k++) { const idx = state.inv.indexOf(null); if(idx > -1) state.inv[idx] = prob.type; }
+                    let msg="포션 완성! ⚗️";
+                    
+                    // 1. 일반 물약 (메인 인벤토리)
+                    let idx = state.inv.indexOf(null); if(idx>-1) state.inv[idx]=prob.type;
+                    
+                    // 2. 스피드 보너스 (얼음 포션 - 전용 주머니)
+                    if(isSpeed) {
+                        if(state.icePotions < 2) {
+                            state.icePotions++;
+                            msg = "⚡스피드 보너스! 얼음 포션 획득! ❄️";
+                        } else {
+                            msg = "⚡스피드 보너스! (얼음 주머니 꽉참)";
+                        }
+                    }
                     showFeedback(true, msg);
-                } else {
-                    const t = state.treasures[prob.targetId];
-                    t.req.forEach(r => { state.inv[state.inv.indexOf(r)] = null; });
+                } 
+                else {
+                    const t=state.treasures[prob.targetId]; t.req.forEach(r=>{state.inv[state.inv.indexOf(r)]=null;});
                     t.status='player'; 
-                    // [SCORE FIX] Gacha determines the actual score
-                    const reward = drawGacha(t.rank, isSpeed);
-                    state.pScore += reward.pts; // Add actual item points
-                    state.collection.push(reward); 
-                    if(isSpeed) showFeedback(true, "⚡스피드 보너스! 확률 UP!");
-                    showResultModal(reward, t.rank);
+                    const reward=drawGacha(t.rank, isSpeed); state.pScore+=reward.pts; state.collection.push(reward);
+                    if(isSpeed) showFeedback(true, "⚡스피드 보너스! 확률 UP!"); showResultModal(reward, t.rank);
                 }
-            } else { showFeedback(false, "계산 실수... 턴 종료 😓"); }
+            } else showFeedback(false, "계산 실수... 턴 종료 😓");
             foxTurn();
         }
 
         function drawGacha(rank, isSpeed) {
-            const r = Math.floor(Math.random()*100)+1; let tier='tier1', pts=1;
-            if (isSpeed) {
-                if (rank === 'gold') { tier = 'tier5'; pts = 5; }
-                else if (rank === 'silver') { if (r <= 30) { tier = 'tier5'; pts = 5; } else { tier = 'tier3'; pts = 3; } }
-                else { if (r <= 15) { tier = 'tier5'; pts = 5; } else if (r <= 50) { tier = 'tier3'; pts = 3; } else { tier = 'tier1'; pts = 1; } }
+            const r=Math.floor(Math.random()*100)+1; let tier='tier1', pts=1;
+            if(isSpeed) {
+                if(rank==='gold'){tier='tier5';pts=5;} else if(rank==='silver'){if(r<=30){tier='tier5';pts=5;}else{tier='tier3';pts=3;}} else{if(r<=15){tier='tier5';pts=5;}else if(r<=50){tier='tier3';pts=3;}else{tier='tier1';pts=1;}}
             } else {
-                if(rank==='gold'){ if(r<=70){tier='tier5';pts=5;}else{tier='tier3';pts=3;} }
-                else if(rank==='silver'){ if(r<=20){tier='tier5';pts=5;}else if(r<=70){tier='tier3';pts=3;} }
-                else { if(r<=10){tier='tier5';pts=5;}else if(r<=30){tier='tier3';pts=3;} }
+                if(rank==='gold'){if(r<=70){tier='tier5';pts=5;}else{tier='tier3';pts=3;}} else if(rank==='silver'){if(r<=20){tier='tier5';pts=5;}else if(r<=70){tier='tier3';pts=3;}} else{if(r<=10){tier='tier5';pts=5;}else if(r<=30){tier='tier3';pts=3;}}
             }
-            const list = SYLVANIAN_DB[tier], name = list[Math.floor(Math.random()*list.length)];
-            return {name, pts, tier};
+            const list=SYLVANIAN_DB[tier], name=list[Math.floor(Math.random()*list.length)]; return {name, pts, tier};
         }
 
+        // ==========================================
+        // 🔥 여우 로직 (얼음 + 턴 기반 광폭화)
+        // ==========================================
         function foxTurn() {
-            const alive = state.treasures.filter(t => t.status === 'alive');
-            if (alive.length > 0) {
-                if (state.foxTarget === null || state.treasures[state.foxTarget].status !== 'alive') {
-                    state.foxTarget = alive[Math.floor(Math.random() * alive.length)].id;
-                }
-                const t = state.treasures[state.foxTarget];
+            // 1. 얼음 포션 체크
+            if(state.isFoxFrozen) {
+                showFeedback(true, "여우가 꽁꽁 얼어 움직이지 못합니다! ❄️");
+                state.isFoxFrozen = false; // 상태 해제
+                state.turn++; startNewTurn(); // 바로 다음 턴으로
+                return;
+            }
+
+            const alive=state.treasures.filter(t=>t.status==='alive');
+            if(alive.length>0) {
+                if(state.foxTarget===null || state.treasures[state.foxTarget].status!=='alive') state.foxTarget=alive[Math.floor(Math.random()*alive.length)].id;
+                const t=state.treasures[state.foxTarget];
+                
+                // 2. 확률 계산 (점수 차이 + 턴 경과)
                 const diff = state.pScore - state.fScore;
-                let chance = 0; if (diff >= 5) chance = 1.0; else if (diff === 4) chance = 0.75; else if (diff === 3) chance = 0.5; else if (diff === 2) chance = 0.25;
+                let scoreChance = 0; if(diff>=5) scoreChance=1.0; else if(diff===4) scoreChance=0.75; else if(diff===3) scoreChance=0.5; else if(diff===2) scoreChance=0.25;
+                
+                let turnChance = 0;
+                if(state.turn >= 20) turnChance = 0.75;
+                else if(state.turn >= 15) turnChance = 0.50;
+                else if(state.turn >= 10) turnChance = 0.25;
 
-                let move = 1; let msg = "🦊 여우가 살금살금 다가옵니다...";
-                if (Math.random() < chance) { move = 2; if (diff >= 5) msg = "🔥🔥 여우가 분노하여 폭주합니다!! (2칸)"; else msg = "🦊 여우가 서둘러 쫓아옵니다! (2칸)"; }
-                t.prog += move; showToast(msg);
+                // 합산 확률 (최대 100%)
+                let totalChance = Math.min(1.0, scoreChance + turnChance);
 
-                if (t.prog >= t.turns) {
-                    t.status = 'fox'; state.foxTarget = null;
-                    // [SCORE FIX] Fox also rolls Gacha (no speed bonus)
-                    const reward = drawGacha(t.rank, false);
-                    state.fScore += reward.pts;
-                    showFeedback(false, `여우가 ${reward.name}(${reward.pts}점)을 훔침!`);
+                let move=1, msg="🦊 여우가 살금살금 다가옵니다...";
+                if(Math.random() < totalChance) {
+                    move=2; 
+                    msg="🚀 여우가 전력질주합니다! (2칸 이동)";
+                }
+                
+                t.prog+=move; showToast(msg);
+                if(t.prog>=t.turns) {
+                    t.status='fox'; state.foxTarget=null;
+                    const reward=drawGacha(t.rank, false); state.fScore+=reward.pts;
+                    showFeedback(false, `여우가 ${reward.name} 획득!`);
                 }
             }
-            if (state.treasures.every(t => t.status !== 'alive')) {
-                setTimeout(() => {
-                    let resultMsg = state.pScore > state.fScore ? "🏆 와우! 멋진 승리입니다!" : "😢 아쉬운 패배...";
-                    alert(`게임 종료!\n\n${resultMsg}\n나: ${state.pScore}점 vs 여우: ${state.fScore}점`);
-                }, 500);
-                return;
+            if(state.treasures.every(t=>t.status!=='alive')) {
+                setTimeout(()=>{alert(`게임 종료!\n나: ${state.pScore} vs 여우: ${state.fScore}`);},500); return;
             }
             state.turn++; startNewTurn();
         }
 
         function showResultModal(item, rank) {
-            const bg = item.tier==='tier5'?'#fff9c4':item.tier==='tier3'?'#e1f5fe':'#f5f5f5';
-            const bd = item.tier==='tier5'?'gold':item.tier==='tier3'?'silver':'#ddd';
-            document.getElementById('result-content').innerHTML = `<div class="item-card" style="background:${bg};border-color:${bd}"><div style="font-size:40px;">🎁</div><div style="font-size:18px;font-weight:bold;color:#ef6c00;margin:10px 0;">${item.name}</div><div style="font-size:14px;color:#777;">가치: ${item.pts}점</div></div>`;
+            const bg=item.tier==='tier5'?'#fff9c4':item.tier==='tier3'?'#e1f5fe':'#f5f5f5', bd=item.tier==='tier5'?'gold':item.tier==='tier3'?'silver':'#ddd';
+            document.getElementById('result-content').innerHTML=`<div class="item-card" style="background:${bg};border-color:${bd}"><div style="font-size:40px;">🎁</div><div style="font-size:18px;font-weight:bold;color:#ef6c00;margin:10px 0;">${item.name}</div><div style="font-size:14px;color:#777;">가치: ${item.pts}점</div></div>`;
             document.getElementById('overlay').style.display='block'; document.getElementById('result-modal').style.display='block';
         }
         function openCollection() {
@@ -402,7 +442,22 @@
         function render() {
             document.getElementById('p-score').innerText=state.pScore; document.getElementById('f-score').innerText=state.fScore; document.getElementById('turn-cnt').innerText=state.turn;
             document.getElementById('cnt-fire').innerText=state.mat.fire; document.getElementById('cnt-ice').innerText=state.mat.ice; document.getElementById('cnt-herb').innerText=state.mat.herb;
-            state.inv.forEach((item,i)=>{const el=document.getElementById('inventory').children[i]; el.innerHTML=item?POTIONS[item].icon:''; el.className=`inv-slot ${item?'filled':''}`;});
+            state.inv.forEach((item,i)=>{
+                const el=document.getElementById('inventory').children[i]; 
+                el.innerHTML=item?POTIONS[item].icon:''; 
+                el.className=`inv-slot ${item?'filled':''}`;
+            });
+            
+            // 얼음 주머니 UI 업데이트
+            const icePouch = document.getElementById('ice-pouch');
+            const iceCountText = document.getElementById('ice-count-text');
+            iceCountText.innerText = `${state.icePotions} / 2`;
+            if(state.icePotions > 0 && !state.usedIceTurn) {
+                icePouch.classList.remove('disabled');
+            } else {
+                icePouch.classList.add('disabled');
+            }
+
             const board=document.getElementById('game-board'); board.innerHTML='';
             state.treasures.forEach(t=>{
                 const box=document.createElement('div'); box.className='slot-box';
