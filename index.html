@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>동물 숲의 수학 연금술사 : Omni Update</title>
+    <title>동물 숲의 수학 연금술사 : Final Logic Fix</title>
     <style>
         :root { --primary: #00897b; --secondary: #b2dfdb; --accent: #ff7043; --bg: #e0f2f1; --text: #004d40; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; margin: 0; padding: 10px; user-select: none; color: var(--text); transition: 0.3s; }
         
-        body.blocking-mode { pointer-events: none; opacity: 0.85; cursor: wait !important; }
+        body.blocking-mode { pointer-events: none; opacity: 0.9; cursor: wait !important; }
         body.blocking-mode button, body.blocking-mode .inv-slot, body.blocking-mode .slot-box { cursor: wait !important; }
 
         #header { width: 760px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border: 3px solid var(--secondary); }
@@ -16,7 +16,7 @@
         #game-board { 
             display: grid; grid-template-columns: repeat(5, 140px); grid-template-rows: repeat(2, 160px); 
             gap: 15px; background: white; padding: 20px; border-radius: 25px; border: 5px solid #80cbc4; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative; z-index: 1;
         }
         
         .slot-box { 
@@ -32,11 +32,9 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-2px, 2px); } 75% { transform: translate(2px, -2px); } }
 
-        /* 컨트롤 패널 레이아웃 확장 */
-        #control-panel { width: 760px; height: 130px; background: white; margin-top: 15px; border-radius: 20px; display: flex; justify-content: space-around; align-items: center; border: 3px solid var(--secondary); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        #control-panel { width: 760px; height: 140px; background: white; margin-top: 15px; border-radius: 20px; display: flex; justify-content: space-around; align-items: center; border: 3px solid var(--secondary); box-shadow: 0 5px 15px rgba(0,0,0,0.05); z-index: 1; }
         #m-display { font-size: 14px; background: #e0f7fa; padding: 10px; border-radius: 15px; border: 2px solid #b2ebf2; font-weight: bold; width: 110px; }
         
-        /* 도구 영역 (인벤토리 + 주머니들) */
         .tool-area { display: flex; gap: 10px; align-items: center; }
 
         #inventory { display: flex; gap: 8px; background: #e0f2f1; padding: 10px; border-radius: 15px; border: 2px solid #b2dfdb; }
@@ -44,7 +42,6 @@
         .inv-slot:hover { transform: scale(1.05); border-color: var(--accent); }
         .inv-slot.filled { border-style: solid; background: #fffde7; animation: pop 0.3s; border-color: #fbc02d; }
         
-        /* 특수 주머니 공통 스타일 */
         .pouch { 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             width: 70px; height: 85px; border-radius: 15px; cursor: pointer; transition: 0.2s; position: relative;
@@ -54,12 +51,10 @@
         .pouch-cnt { font-size: 14px; font-weight: bold; margin-top: 3px; }
         .pouch-sub { font-size: 10px; color: #555; }
 
-        /* 얼음 주머니 */
         #ice-pouch { background: #e1f5fe; border: 3px solid #29b6f6; }
         #ice-pouch:hover { background: #b3e5fc; }
         #ice-pouch .pouch-cnt { color: #0277bd; }
 
-        /* [추가] 만능 재료 주머니 */
         #omni-pouch { background: #f3e5f5; border: 3px solid #ab47bc; }
         #omni-pouch:hover { background: #e1bee7; }
         #omni-pouch .pouch-cnt { color: #7b1fa2; }
@@ -72,8 +67,8 @@
         .btn-disabled { background: #cfd8dc; color: #90a4ae; cursor: not-allowed; transform: none !important; box-shadow: none !important; position: relative; }
         .btn-disabled::after { content: "⛔"; position: absolute; top: -8px; right: -5px; font-size: 18px; }
 
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; backdrop-filter: blur(3px); }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 25px; z-index: 100; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.2); min-width: 400px; border: 4px solid var(--primary); }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2900; backdrop-filter: blur(3px); }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 25px; z-index: 3000; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.2); min-width: 400px; border: 4px solid var(--primary); }
         
         input { font-size: 24px; text-align: center; padding: 10px; border: 2px solid #ddd; border-radius: 10px; outline: none; background: #fafafa; }
         input:focus { border-color: var(--accent); background: #fff; }
@@ -85,20 +80,24 @@
         .mixed-box { display: flex; align-items: center; justify-content: center; gap: 15px; }
         .whole-num-input { width: 70px; height: 70px; font-size: 30px; }
 
-        #feedback-overlay { position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 60px; font-weight: bold; pointer-events: none; z-index: 3000; text-shadow: 0 5px 15px rgba(0,0,0,0.3); opacity: 0; white-space: nowrap; }
+        #feedback-overlay { position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 60px; font-weight: bold; pointer-events: none; z-index: 3500; text-shadow: 0 5px 15px rgba(0,0,0,0.3); opacity: 0; white-space: nowrap; }
         .success-anim { animation: pop-success 1.5s ease-out forwards; color: #4caf50; }
         .fail-anim { animation: pop-success 1.5s ease-out forwards; color: #f44336; }
         @keyframes pop-success { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
 
-        #fox-toast { display: none; position: fixed; top: 10%; background: rgba(0,0,0,0.85); color: white; padding: 15px 25px; border-radius: 30px; font-weight: bold; z-index: 2000; animation: fade-in 0.3s; white-space: pre-line; text-align: center; line-height: 1.5; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        #turn-toast { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,77,64, 0.95); color: #fff; padding: 30px 50px; border-radius: 20px; font-size: 24px; font-weight: bold; z-index: 2100; animation: fade-in 0.3s; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 3px solid #b2dfdb; }
+        #fox-toast { display: none; position: fixed; top: 10%; background: rgba(0,0,0,0.85); color: white; padding: 15px 25px; border-radius: 30px; font-weight: bold; z-index: 3500; animation: fade-in 0.3s; white-space: pre-line; text-align: center; line-height: 1.5; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        #turn-toast { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,77,64, 0.95); color: #fff; padding: 30px 50px; border-radius: 20px; font-size: 24px; font-weight: bold; z-index: 3500; animation: fade-in 0.3s; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 3px solid #b2dfdb; }
         @keyframes fade-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .item-card { background: #fff3e0; border: 2px solid #ffb74d; border-radius: 15px; padding: 15px; margin-top: 10px; animation: pop 0.5s; }
         .item-name { font-size: 18px; font-weight: bold; color: #ef6c00; margin: 10px 0; }
         .item-rank { font-size: 14px; color: #777; }
         
-        #collection-btn { position: fixed; bottom: 20px; right: 20px; background: #00796b; color: white; padding: 10px 20px; border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap; }
+        #collection-btn { position: fixed; bottom: 20px; right: 20px; background: #00796b; color: white; padding: 10px 20px; border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap; z-index: 50; }
+        
+        #click-blocker { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; cursor: wait; background: rgba(255,255,255,0); }
+        
+        #result-modal { z-index: 3000; }
     </style>
 </head>
 <body>
@@ -106,6 +105,7 @@
     <div id="feedback-overlay"></div>
     <div id="fox-toast">🦊 여우가 나타났다!</div>
     <div id="turn-toast"></div>
+    <div id="click-blocker"></div>
 
     <div id="header">
         <div style="font-size: 22px;">🌲 동물 숲의 수학 연금술사</div>
@@ -152,8 +152,8 @@
         <h3>📍 어디로 갈까요?</h3>
         <p style="color:#666; font-size:14px; margin-bottom:15px;">(⚠️ 지역 한 곳이 봉쇄되었습니다)</p>
         <div style="display:flex; gap:10px; justify-content: center;">
-            <button id="loc-fire" onclick="startMath('fire')" style="background:#ffccbc; width:100px; height:100px;">🔥 화산<br><span style="font-size:12px;">(곱셈)</span></button>
-            <button id="loc-ice" onclick="startMath('ice')" style="background:#b3e5fc; width:100px; height:100px;">❄️ 동굴<br><span style="font-size:12px;">(나눗셈)</span></button>
+            <button id="loc-fire" onclick="startMath('fire')" style="background:#ffccbc; width:100px; height:100px;">🔥 화산<br><span style="font-size:12px;">(곱셈 Hard)</span></button>
+            <button id="loc-ice" onclick="startMath('ice')" style="background:#b3e5fc; width:100px; height:100px;">❄️ 동굴<br><span style="font-size:12px;">(나눗셈 Hard)</span></button>
             <button id="loc-herb" onclick="startMath('herb')" style="background:#c8e6c9; width:100px; height:100px;">🌿 숲<br><span style="font-size:12px;">(심화)</span></button>
         </div>
         <button onclick="closeAll()" style="margin-top:20px; background:#ddd;">취소</button>
@@ -167,7 +167,7 @@
     </div>
 
     <div class="modal" id="math-modal">
-        <h2 id="q-text" style="font-size:32px; margin-bottom: 20px; color:#333;"></h2>
+        <h2 id="q-text" style="font-size:28px; margin-bottom: 20px; color:#333;"></h2>
         <div id="timer-bar" style="height:5px; background:#eee; width:100%; margin-bottom:15px;"><div id="timer-fill" style="height:100%; background:#ff9800; width:100%; transition:width 1s linear;"></div></div>
         <div id="input-single" style="display:none;"><input type="number" id="ans-single" placeholder="정답"></div>
         <div id="input-frac" class="fraction-box" style="display:none;"><input type="number" id="ans-num" placeholder="분자"><div class="frac-line"></div><input type="number" id="ans-den" placeholder="분모"></div>
@@ -202,7 +202,7 @@
             turn: 1, pScore: 0, fScore: 0, mat: { fire: 0, ice: 0, herb: 0 }, 
             inv: [null, null, null], 
             icePotions: 0, icePieces: 0, usedIceTurn: false, isFoxFrozen: false,
-            omniItem: 0, omniPieces: 0, // [NEW] 만능 재료 상태
+            omniItem: 0, omniPieces: 0,
             treasures: [], foxTarget: null, blockedLoc: null, blockedPot: null, 
             collection: [], curProb: null, startTime: 0
         };
@@ -219,12 +219,27 @@
                 let req = cfg.rank==='wood' ? [basics[Math.floor(Math.random()*3)]] : cfg.rank==='silver' ? [...basics].sort(()=>Math.random()-0.5).slice(0, 2) : ['purple', basics[Math.floor(Math.random()*3)]];
                 return { ...cfg, id: i, prog: 0, status: 'alive', req };
             });
+            setInputBlock(false); 
             startNewTurn();
         }
 
+        function checkGameOver() {
+            const aliveCount = state.treasures.filter(t => t.status === 'alive').length;
+            if (aliveCount === 0) {
+                setTimeout(() => {
+                    let resultMsg = state.pScore > state.fScore ? "🎉 승리! 훌륭합니다!" : "🦊 아쉽네요... 여우의 승리!";
+                    alert(`게임 종료!\n\n${resultMsg}\n나: ${state.pScore} vs 여우: ${state.fScore}`);
+                    location.reload(); 
+                }, 1000);
+                return true; 
+            }
+            return false; 
+        }
+
         function setInputBlock(blocked) {
-            if (blocked) document.body.classList.add('blocking-mode');
-            else document.body.classList.remove('blocking-mode');
+            const blocker = document.getElementById('click-blocker');
+            if (blocked) blocker.style.display = 'block';
+            else blocker.style.display = 'none';
         }
         function showFoxToast(msg) {
             const t = document.getElementById('fox-toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => { t.style.display = 'none'; }, 4000);
@@ -234,6 +249,7 @@
         }
 
         function startNewTurn() {
+            if(checkGameOver()) return; 
             const locs = ['fire', 'ice', 'herb']; state.blockedLoc = locs[Math.floor(Math.random() * locs.length)];
             const pots = ['red', 'blue', 'green', 'purple']; state.blockedPot = pots[Math.floor(Math.random() * pots.length)];
             state.usedIceTurn = false;
@@ -250,7 +266,6 @@
             }
         }
 
-        // [NEW] 만능 재료 사용 로직
         function useOmniMaterial() {
             if (state.omniItem <= 0) return;
             const choice = prompt("✨ 만능 재료를 무엇으로 변환할까요?\n\n1. 🔥 불꽃열매\n2. ❄️ 얼음조각\n3. 🌿 신비약초\n\n(번호 입력)");
@@ -258,7 +273,7 @@
             else if (choice === '2') { state.mat.ice++; showFeedback(true, "❄️ 얼음조각 변환 완료!"); }
             else if (choice === '3') { state.mat.herb++; showFeedback(true, "🌿 신비약초 변환 완료!"); }
             else return; 
-            state.omniItem = 0; // 1개 소모
+            state.omniItem = 0; 
             render();
         }
 
@@ -267,31 +282,113 @@
             if (item && confirm(`이 ${POTIONS[item].name}을 버리시겠습니까?`)) { state.inv[idx] = null; render(); }
         }
 
+        // ==========================================
+        // 📚 스토리텔링 수학 엔진 (로직 수정됨)
+        // ==========================================
         const MathEngine = {
             rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; },
             mkFrac(w, n, d) { return `${w > 0 ? w : ''}<span style="display:inline-block; vertical-align:middle; text-align:center; font-size:0.8em; margin-left:5px;"><span style="display:block; border-bottom:2px solid #333;">${n}</span><span>${d}</span></span>`; },
+            getFlavor(type, nums) {
+                const templates = {
+                    fire: [
+                        `🔥 불꽃 정령이 <b>${nums[0]}</b>개의 불씨를 <b>${nums[1]}</b>번 터뜨립니다!<br><span style='font-size:0.7em; color:#666;'>(총 불씨는 몇 개?)</span>`,
+                        `🌋 용암이 한 번에 <b>${nums[0]}</b>L씩, 총 <b>${nums[1]}</b>번 뿜어져 나옵니다.<br><span style='font-size:0.7em; color:#666;'>(흘러나온 총 용암의 양은?)</span>`,
+                        `⚔️ 대장장이가 <b>${nums[0]}</b>번씩 <b>${nums[1]}</b>일 동안 망치질을 합니다.<br><span style='font-size:0.7em; color:#666;'>(총 망치질 횟수는?)</span>`
+                    ],
+                    ice: [
+                        `❄️ <b>${nums[0]}</b>kg의 거대 얼음을 <b>${nums[1]}</b>조각으로 똑같이 쪼개세요.<br><span style='font-size:0.7em; color:#666;'>(한 조각의 무게는?)</span>`,
+                        `🐧 <b>${nums[0]}</b>마리의 물고기를 <b>${nums[1]}</b>마리 펭귄에게 나눠줍니다.<br><span style='font-size:0.7em; color:#666;'>(한 마리당 몇 개?)</span>`,
+                        `💎 <b>${nums[0]}</b>개의 수정 조각을 <b>${nums[1]}</b>개의 상자에 담아야 해요.<br><span style='font-size:0.7em; color:#666;'>(한 상자에 몇 개?)</span>`
+                    ],
+                    herb: [
+                        `🌿 신비한 숲에서 <b>${nums[0]}</b>개의 약초를 <b>${nums[1]}</b>묶음 찾았습니다!<br><span style='font-size:0.7em; color:#666;'>(곱셈: 총 약초 개수는?)</span>`,
+                        `🌱 <b>${nums[0]}</b>개의 마법 씨앗을 <b>${nums[1]}</b>개의 밭에 심습니다.<br><span style='font-size:0.7em; color:#666;'>(나눗셈: 한 밭에 몇 개?)</span>`
+                    ],
+                    craft_add: [
+                        `🔴 용기의 솥에 <b>${nums[0]}</b>L와 <b>${nums[1]}</b>L를 더해 끓이세요!`,
+                        `🔥 붉은 화염 용액 <b>${nums[0]}</b>L에 <b>${nums[1]}</b>L를 추가합니다.`
+                    ],
+                    craft_sub: [
+                        `🔵 지혜의 비커 <b>${nums[0]}</b>L에서 <b>${nums[1]}</b>L만큼 덜어내세요.`,
+                        `💧 푸른 정화수 <b>${nums[0]}</b>L 중 <b>${nums[1]}</b>L가 증발했습니다.`
+                    ],
+                    // [수정] 덧셈/뺄셈 스토리 분리
+                    craft_mix_add: [
+                        `⚗️ 생명의 기운 <b>${nums[0]}</b>L와 마법 용액 <b>${nums[1]}</b>L를 큰 솥에 모두 붓습니다.<br><span style='font-size:0.7em; color:#666;'>(합쳐진 총 양은?)</span>`,
+                        `🧪 <b>${nums[0]}</b>g의 빛의 가루와 <b>${nums[1]}</b>g의 어둠의 가루를 합치세요.<br><span style='font-size:0.7em; color:#666;'>(합쳐진 총 양은?)</span>`
+                    ],
+                    craft_mix_sub: [
+                        `🏺 엘릭서 <b>${nums[0]}</b>L 중 실수로 <b>${nums[1]}</b>L를 쏟았습니다.<br><span style='font-size:0.7em; color:#666;'>(남은 양은?)</span>`,
+                        `📉 <b>${nums[0]}</b>L의 용액이 너무 진해서 <b>${nums[1]}</b>L만큼 덜어냈습니다.<br><span style='font-size:0.7em; color:#666;'>(남은 양은?)</span>`
+                    ],
+                    wood: `📦 낡은 상자에 쪽지가 있습니다.<br>"어떤 수($x$)에 <b>${nums[0]}</b>을 곱하고 <b>${nums[1]}</b>을 <b>${nums[2]}</b>하면 <b>${nums[3]}</b>가 된다."`,
+                    silver: `🥈 은색 저울의 균형을 맞추세요!<br>"좌측엔 <b>${nums[0]}</b>, 우측엔 <b>${nums[1]}</b>..."`,
+                    gold: `🏆 황금 수호자가 묻습니다.<br>"미지의 수($x$)에 <b>${nums[1]}</b>을 <b>${nums[2]}</b>한 뒤, <b>${nums[0]}</b>배를 하면 <b>${nums[3]}</b>이다."`
+                };
+                const list = templates[type];
+                if (Array.isArray(list)) return list[Math.floor(Math.random() * list.length)];
+                return list;
+            },
             get(type) {
-                let q, a, mode = 'single';
+                let q, a, mode = 'single', flavor = "";
+                
                 if (type === 'fire') {
-                    let n1 = this.rnd(100, 500), maxN2 = Math.floor(10000/n1); if(maxN2<10){n1=this.rnd(100,200);maxN2=Math.floor(10000/n1);} let n2=this.rnd(10,Math.min(99,maxN2)); q=`${n1} × ${n2} = ?`; a=n1*n2;
-                } else if (type === 'ice') {
-                    let quo=this.rnd(11,50), div=this.rnd(Math.max(10,Math.ceil(1000/quo)),99); q=`${quo*div} ÷ ${div} = ?`; a=quo;
-                } else if (type === 'herb') {
-                    if(Math.random()<0.5){ let n1=this.rnd(102,999), n2=this.rnd(Math.max(10,Math.ceil(10000/n1)),99); q=`${n1} × ${n2} = ?`; a=n1*n2; }
-                    else{ let quo=this.rnd(50,200), div=this.rnd(Math.max(10,Math.ceil(1000/quo)),99); q=`${quo*div} ÷ ${div} = ?`; a=quo; }
-                } else if (['red','blue','green','purple'].includes(type)) {
+                    let n1 = this.rnd(100, 500), maxN2 = Math.floor(10000/n1); if(maxN2<10){n1=this.rnd(100,200);maxN2=Math.floor(10000/n1);} let n2=this.rnd(10,Math.min(99,maxN2)); 
+                    a = n1 * n2; flavor = this.getFlavor('fire', [n1, n2]); q = `${flavor}<br><br><span style='color:#d84315; font-size:1.2em;'>${n1} × ${n2} = ?</span>`;
+                } 
+                else if (type === 'ice') {
+                    let quo=this.rnd(11,50), div=this.rnd(Math.max(10,Math.ceil(1000/quo)),99); let dividend = quo * div; a = quo; flavor = this.getFlavor('ice', [dividend, div]); q = `${flavor}<br><br><span style='color:#0277bd; font-size:1.2em;'>${dividend} ÷ ${div} = ?</span>`;
+                } 
+                else if (type === 'herb') {
+                    if(Math.random()<0.5){ let n1=this.rnd(102,999), n2=this.rnd(Math.max(10,Math.ceil(10000/n1)),99); a = n1 * n2; q = `${this.getFlavor('herb', [n1, n2])}<br><br><span style='color:#2e7d32; font-size:1.2em;'>${n1} × ${n2} = ?</span>`; } 
+                    else { let quo=this.rnd(50,200), div=this.rnd(Math.max(10,Math.ceil(1000/quo)),99); let dividend = quo * div; a = quo; q = `${this.getFlavor('herb', [dividend, div])}<br><br><span style='color:#2e7d32; font-size:1.2em;'>${dividend} ÷ ${div} = ?</span>`; }
+                } 
+                else if (['red','blue','green','purple'].includes(type)) {
                     let d1=this.rnd(2,9), d2=this.rnd(2,9); if(d1===d2) d2=(d1%8)+2; let n1=this.rnd(1,d1-1), n2=this.rnd(1,d2-1);
-                    if(type==='red'){ q=`${this.mkFrac(0,n1,d1)} + ${this.mkFrac(0,n2,d2)} = ?`; a={w:0,n:n1*d2+n2*d1,d:d1*d2}; mode='frac'; }
-                    else if(type==='blue'){ let v1=n1/d1,v2=n2/d2; if(v1<v2){[n1,n2]=[n2,n1];[d1,d2]=[d2,d1];} q=`${this.mkFrac(0,n1,d1)} - ${this.mkFrac(0,n2,d2)} = ?`; a={w:0,n:n1*d2-n2*d1,d:d1*d2}; mode='frac'; }
-                    else { let w1=this.rnd(1,3), w2=this.rnd(1,3), plus=Math.random()<0.5; if(!plus){ let v1=w1+n1/d1,v2=w2+n2/d2; if(v1<v2){[w1,w2]=[w2,w1];[n1,n2]=[n2,n1];[d1,d2]=[d2,d1];} }
-                        q=`${this.mkFrac(w1,n1,d1)} ${plus?'+':'-'} ${this.mkFrac(w2,n2,d2)} = ?`; 
-                        let num = plus ? ((w1*d1+n1)*d2 + (w2*d2+n2)*d1) : ((w1*d1+n1)*d2 - (w2*d2+n2)*d1), den=d1*d2;
-                        a={w:Math.floor(num/den), n:num%den, d:den}; if(a.n===0){a=a.w; mode='single';} else mode='mixed';
+                    if(type==='red'){ let t1 = this.mkFrac(0,n1,d1), t2 = this.mkFrac(0,n2,d2); flavor = this.getFlavor('craft_add', [t1, t2]); q = `${flavor}<br><br>${t1} + ${t2} = ?`; a={w:0,n:n1*d2+n2*d1,d:d1*d2}; mode='frac'; }
+                    else if(type==='blue'){ let v1=n1/d1,v2=n2/d2; if(v1<v2){[n1,n2]=[n2,n1];[d1,d2]=[d2,d1];} let t1 = this.mkFrac(0,n1,d1), t2 = this.mkFrac(0,n2,d2); flavor = this.getFlavor('craft_sub', [t1, t2]); q = `${flavor}<br><br>${t1} - ${t2} = ?`; a={w:0,n:n1*d2-n2*d1,d:d1*d2}; mode='frac'; }
+                    else { 
+                        let w1=this.rnd(1,3), w2=this.rnd(1,3), plus=Math.random()<0.5; 
+                        if(!plus){ let v1=w1+n1/d1,v2=w2+n2/d2; if(v1<v2){[w1,w2]=[w2,w1];[n1,n2]=[n2,n1];[d1,d2]=[d2,d1];} } 
+                        let t1 = this.mkFrac(w1,n1,d1), t2 = this.mkFrac(w2,n2,d2), op = plus?'+':'-'; 
+                        
+                        // [수정] 부호에 따라 스토리 분기
+                        let typeKey = plus ? 'craft_mix_add' : 'craft_mix_sub';
+                        flavor = this.getFlavor(typeKey, [t1, t2]); 
+                        
+                        q = `${flavor}<br><br>${t1} ${op} ${t2} = ?`; 
+                        let num = plus ? ((w1*d1+n1)*d2 + (w2*d2+n2)*d1) : ((w1*d1+n1)*d2 - (w2*d2+n2)*d1), den=d1*d2; 
+                        a={w:Math.floor(num/den), n:num%den, d:den}; if(a.n===0){a=a.w; mode='single';} else mode='mixed'; 
                     }
                 } 
-                else if (type === 'wood') { let x=this.rnd(2,9), A=this.rnd(2,9), B=this.rnd(1,20); let isPlus = Math.random() < 0.5; let res = isPlus ? A*x+B : A*x-B; q=`${A}x ${isPlus?'+':'-'} ${B} = ${res}`; a=x; }
-                else if (type === 'silver') { let x=this.rnd(2,9), A=this.rnd(2,9), C=this.rnd(3,9); let B=this.rnd(1,10); let rhs = C*x - (A*x - B); q=`${A}x - ${B} = ${C}x - ${rhs}`; a=x; }
-                else if (type === 'gold') { let x=this.rnd(2,9), A=this.rnd(2,5), B=this.rnd(1,5); if(Math.random()<0.5) { q=`${A}(x + ${B}) = ${A*(x+B)}`; } else { x=B+this.rnd(1,9); q=`${A}(x - ${B}) = ${A*(x-B)}`; } a=x; }
+                else if (type === 'wood') { 
+                    let x=this.rnd(2,9), A=this.rnd(2,9), B=this.rnd(1,20); 
+                    let isPlus = Math.random() < 0.5; 
+                    let result = isPlus ? (A*x + B) : (A*x - B); 
+                    let opStr = isPlus ? '더' : '빼'; 
+                    let opSign = isPlus ? '+' : '-'; 
+                    flavor = this.getFlavor('wood', [A, B, opStr, result]); 
+                    q = `${flavor}<br><br><span style='font-size:1.2em;'>${A}x ${opSign} ${B} = ${result}</span>`; a=x;
+                } 
+                else if (type === 'silver') { 
+                    let x=this.rnd(2,9), A=this.rnd(2,9), C=this.rnd(3,9); 
+                    let B = this.rnd(1,10); 
+                    let rhs = C*x - (A*x - B);
+                    let sign = rhs >= 0 ? '-' : '+'; 
+                    let val = Math.abs(rhs); 
+                    let eq = `${A}x - ${B} = ${C}x ${sign} ${val}`;
+                    flavor = this.getFlavor('silver', [`${A}x - ${B}`, `${C}x ${sign} ${val}`]);
+                    q = `${flavor}<br><br><span style='font-size:1.2em;'>${eq}</span>`; a=x; 
+                } 
+                else if (type === 'gold') { 
+                    let x=this.rnd(2,9), A=this.rnd(2,5), B=this.rnd(1,5); 
+                    let isPlus = Math.random() < 0.5; 
+                    let result, opStr, opSign;
+                    if(isPlus) { result = A*(x+B); opStr = '더'; opSign = '+'; } 
+                    else { x = B + this.rnd(1, 9); result = A*(x-B); opStr = '빼'; opSign = '-'; }
+                    flavor = this.getFlavor('gold', [A, B, opStr, result]);
+                    q = `${flavor}<br><br><span style='font-size:1.2em;'>${A}(x ${opSign} ${B}) = ${result}</span>`; a=x; 
+                }
                 return { q, a, type, mode };
             }
         };
@@ -321,83 +418,90 @@
             const bar=document.getElementById('timer-fill'); bar.style.transition='none'; bar.style.width='100%'; setTimeout(()=>{bar.style.transition=`width ${limit}s linear`;bar.style.width='0%';},50);
         }
 
-        function submitAnswer() {
-            const prob=state.curProb, elapsed=(Date.now()-state.startTime)/1000; let correct=false;
-            if(prob.mode==='mixed'){ const w=parseInt(document.getElementById('ans-mixed-w').value)||0, n=parseInt(document.getElementById('ans-mixed-n').value)||0, d=parseInt(document.getElementById('ans-mixed-d').value)||1; if(Math.abs((w+n/d)-(prob.a.w+prob.a.n/prob.a.d))<0.001) correct=true; }
-            else if(prob.mode==='frac'){ const n=parseInt(document.getElementById('ans-num').value), d=parseInt(document.getElementById('ans-den').value); if(Math.abs((n/d)-(prob.a.n/prob.a.d))<0.001) correct=true; }
-            else { if(parseInt(document.getElementById('ans-single').value)===prob.a) correct=true; }
-
-            closeAll();
-            if(correct) {
-                const limit=(['herb','purple','gold'].includes(prob.type))?30:15, isSpeed=elapsed<=limit;
-                
-                if(['fire','ice','herb'].includes(prob.type)) {
-                    // [재료 채집] 로직
-                    if(isSpeed){
-                        // 스피드 성공: 2개 획득
-                        state.mat[prob.type]+=2; 
-                        showFeedback(true, "⚡스피드 보너스! 재료 x2");
-                    } else {
-                        // 스피드 실패: 1개 + 만능 조각
-                        state.mat[prob.type]+=1;
-                        if(state.omniItem < 1) { // 만능재료가 없을 때만 조각 획득
-                            state.omniPieces++;
-                            if(state.omniPieces >= 3) {
-                                state.omniItem = 1;
-                                state.omniPieces = 0;
-                                showFeedback(true, "🧩 조각 모음 완료! 만능 재료 획득! ✨");
-                            } else {
-                                showFeedback(true, `재료 획득 + 🧩 조각(${state.omniPieces}/3)`);
-                            }
-                        } else {
-                            showFeedback(true, "재료 획득! +1");
-                        }
-                    }
-                } 
-                else if(POTIONS[prob.type]) {
-                    // [물약 제작] 로직
-                    Object.entries(POTIONS[prob.type].cost).forEach(([m,c])=>state.mat[m]-=c);
-                    let msg="포션 완성! ⚗️";
-                    let idx = state.inv.indexOf(null); if(idx>-1) state.inv[idx]=prob.type;
-                    
-                    if(isSpeed) { 
-                        if(state.icePotions < 2) { state.icePotions++; msg = "⚡스피드 보너스! 얼음 포션 획득! ❄️"; } 
-                        else { msg = "⚡스피드 보너스! (얼음 주머니 꽉참)"; }
-                    } else {
-                        if(state.icePotions < 2) {
-                            state.icePieces++;
-                            if(state.icePieces >= 2) {
-                                state.icePotions++; state.icePieces = 0; msg = "🧊 조각을 모아 얼음 포션 완성! ❄️";
-                            } else { msg = "얼음 조각 획득! (1/2)"; }
-                        }
-                    }
-                    showFeedback(true, msg);
-                } 
-                else {
-                    const t=state.treasures[prob.targetId]; t.req.forEach(r=>{state.inv[state.inv.indexOf(r)]=null;});
-                    t.status='player'; 
-                    const reward=drawGacha(t.rank, isSpeed); state.pScore+=reward.pts; state.collection.push(reward);
-                    if(isSpeed) showFeedback(true, "⚡스피드 보너스! 확률 UP!"); showResultModal(reward, t.rank);
-                }
-            } else showFeedback(false, "계산 실수... 턴 종료 😓");
+        // [중요] 턴 진행 헬퍼
+        function proceedTurn() {
+            if (checkGameOver()) return; 
             foxTurn();
         }
 
-        function drawGacha(rank, isSpeed) {
-            const r=Math.floor(Math.random()*100)+1; let tier='tier1', pts=1;
-            if(isSpeed) {
-                if(rank==='gold'){tier='tier5';pts=5;} else if(rank==='silver'){if(r<=30){tier='tier5';pts=5;}else{tier='tier3';pts=3;}} else{if(r<=15){tier='tier5';pts=5;}else if(r<=50){tier='tier3';pts=3;}else{tier='tier1';pts=1;}}
-            } else {
-                if(rank==='gold'){if(r<=70){tier='tier5';pts=5;}else{tier='tier3';pts=3;}} else if(rank==='silver'){if(r<=20){tier='tier5';pts=5;}else if(r<=70){tier='tier3';pts=3;}} else{if(r<=10){tier='tier5';pts=5;}else if(r<=30){tier='tier3';pts=3;}}
+        function submitAnswer() {
+            try {
+                const prob=state.curProb, elapsed=(Date.now()-state.startTime)/1000; let correct=false;
+                if(prob.mode==='mixed'){ const w=parseInt(document.getElementById('ans-mixed-w').value)||0, n=parseInt(document.getElementById('ans-mixed-n').value)||0, d=parseInt(document.getElementById('ans-mixed-d').value)||1; if(Math.abs((w+n/d)-(prob.a.w+prob.a.n/prob.a.d))<0.001) correct=true; }
+                else if(prob.mode==='frac'){ const n=parseInt(document.getElementById('ans-num').value), d=parseInt(document.getElementById('ans-den').value); if(Math.abs((n/d)-(prob.a.n/prob.a.d))<0.001) correct=true; }
+                else { if(parseInt(document.getElementById('ans-single').value)===prob.a) correct=true; }
+
+                closeAll();
+                
+                if(correct) {
+                    const limit=(['herb','purple','gold'].includes(prob.type))?30:15, isSpeed=elapsed<=limit;
+                    
+                    if(['fire','ice','herb'].includes(prob.type)) {
+                        if(isSpeed){ state.mat[prob.type]+=2; showFeedback(true, "⚡스피드 보너스! 재료 x2"); } 
+                        else { 
+                            state.mat[prob.type]+=1; 
+                            if(state.omniItem < 1) { 
+                                state.omniPieces++; 
+                                if(state.omniPieces >= 3) { state.omniItem = 1; state.omniPieces = 0; showFeedback(true, "🧩 조각 모음 완료! 만능 재료 획득! ✨"); } 
+                                else { showFeedback(true, `재료 획득 + 🧩 조각(${state.omniPieces}/3)`); } 
+                            } else { showFeedback(true, "재료 획득! +1"); } 
+                        }
+                        proceedTurn(); 
+                    } 
+                    else if(POTIONS[prob.type]) {
+                        Object.entries(POTIONS[prob.type].cost).forEach(([m,c])=>state.mat[m]-=c);
+                        let msg="포션 완성! ⚗️";
+                        let idx = state.inv.indexOf(null); if(idx>-1) state.inv[idx]=prob.type;
+                        
+                        if(isSpeed) { 
+                            if(state.icePotions < 2) { state.icePotions++; msg = "⚡스피드 보너스! 얼음 포션 획득! ❄️"; } 
+                            else { msg = "⚡스피드 보너스! (얼음 주머니 꽉참)"; } 
+                        } 
+                        else { 
+                            if(state.icePotions < 2) { 
+                                state.icePieces++; 
+                                if(state.icePieces >= 2) { state.icePotions++; state.icePieces = 0; msg = "🧊 조각을 모아 얼음 포션 완성! ❄️"; } 
+                                else { msg = "얼음 조각 획득! (1/2)"; } 
+                            } 
+                        }
+                        showFeedback(true, msg);
+                        proceedTurn();
+                    } 
+                    else {
+                        const t=state.treasures[prob.targetId]; 
+                        t.req.forEach(r=>{state.inv[state.inv.indexOf(r)]=null;});
+                        t.status='player'; 
+                        
+                        const reward=drawGacha(t.rank, isSpeed); 
+                        state.pScore+=reward.pts; // 점수 먼저 추가
+                        state.collection.push(reward);
+                        
+                        render(); // [핵심] 점수 추가 후 렌더링해야 최신 점수가 보임
+
+                        if(isSpeed) showFeedback(true, "⚡스피드 보너스! 확률 UP!"); 
+                        
+                        showResultModal(reward, t.rank);
+                        return; // 여기서 멈추고 모달 확인 버튼 대기
+                    }
+                } else { 
+                    showFeedback(false, "계산 실수... 턴 종료 😓");
+                    proceedTurn(); 
+                }
+            } catch(e) {
+                console.error(e);
+                alert("오류가 발생했습니다. 진행을 계속합니다.");
+                proceedTurn();
             }
-            const list=SYLVANIAN_DB[tier], name=list[Math.floor(Math.random()*list.length)]; return {name, pts, tier};
         }
 
         function foxTurn() {
             setInputBlock(true);
+            
+            if(checkGameOver()) return;
+
             if(state.isFoxFrozen) {
                 showFeedback(true, "여우가 꽁꽁 얼어 움직이지 못합니다! ❄️");
-                setTimeout(() => { state.isFoxFrozen = false; state.turn++; startNewTurn(); }, 3000);
+                setTimeout(() => { state.isFoxFrozen = false; state.turn++; startNewTurn(); }, 4000);
                 return;
             }
             const alive=state.treasures.filter(t=>t.status==='alive');
@@ -413,17 +517,31 @@
                 let move=1, msg="🦊 여우가 살금살금 다가옵니다...";
                 if(Math.random() < totalChance) { move=2; msg="🚀 여우가 전력질주합니다! (2칸 이동)"; }
                 
-                t.prog+=move; 
-                showFoxToast(msg);
+                t.prog+=move; showFoxToast(msg);
                 
+                // 여우가 도착했는지 체크
                 if(t.prog>=t.turns) {
                     t.status='fox'; state.foxTarget=null;
                     const reward=drawGacha(t.rank, false); state.fScore+=reward.pts;
                     showFeedback(false, `여우가 ${reward.name} 획득!`);
                 }
             }
-            if(state.treasures.every(t=>t.status!=='alive')) { setTimeout(()=>{alert(`게임 종료!\n나: ${state.pScore} vs 여우: ${state.fScore}`);}, 500); return; }
+            
+            if(checkGameOver()) return;
+
             setTimeout(() => { state.turn++; startNewTurn(); }, 5000);
+        }
+
+        function drawGacha(rank, isSpeed) {
+            const r=Math.floor(Math.random()*100)+1; let tier='tier1', pts=1;
+            if(isSpeed) {
+                if(rank==='gold'){tier='tier5';pts=5;} else if(rank==='silver'){if(r<=30){tier='tier5';pts=5;}else{tier='tier3';pts=3;}} else{if(r<=15){tier='tier5';pts=5;}else if(r<=50){tier='tier3';pts=3;}else{tier='tier1';pts=1;}}
+            } else {
+                if(rank==='gold'){if(r<=70){tier='tier5';pts=5;}else{tier='tier3';pts=3;}} else if(rank==='silver'){if(r<=20){tier='tier5';pts=5;}else if(r<=70){tier='tier3';pts=3;}} else{if(r<=10){tier='tier5';pts=5;}else if(r<=30){tier='tier3';pts=3;}}
+            }
+            const list=SYLVANIAN_DB[tier];
+            const name=list[Math.floor(Math.random()*list.length)]; 
+            return {name, pts, tier};
         }
 
         function showResultModal(item, rank) {
@@ -436,6 +554,15 @@
             c.innerHTML=state.collection.length===0?"<p>아직 모은 아이템이 없어요!</p>":`<div style="max-height:300px;overflow-y:auto;">${state.collection.map(i=>`<div style="padding:5px;border-bottom:1px solid #eee;">${i.name} (${i.pts}점)</div>`).join('')}</div>`;
             document.getElementById('overlay').style.display='block'; document.getElementById('result-modal').style.display='block';
         }
+        
+        function closeResult(){
+            const isCollection = document.getElementById('result-title').innerText.includes("도감");
+            closeAll();
+            if(!isCollection) {
+                proceedTurn();
+            }
+        }
+        
         function tryAdventure(id) { const t=state.treasures[id]; if(t.status!=='alive')return; if(!t.req.every(r=>state.inv.includes(r))){showFoxToast("⚠️ 필요한 물약이 부족합니다!");return;} startMath(t.rank, id); }
         function removeItem(i) { if(state.inv[i]&&confirm("이 물약을 버리시겠습니까?")){state.inv[i]=null;render();} }
         function render() {
@@ -443,13 +570,11 @@
             document.getElementById('cnt-fire').innerText=state.mat.fire; document.getElementById('cnt-ice').innerText=state.mat.ice; document.getElementById('cnt-herb').innerText=state.mat.herb;
             state.inv.forEach((item,i)=>{ const el=document.getElementById('inventory').children[i]; el.innerHTML=item?POTIONS[item].icon:''; el.className=`inv-slot ${item?'filled':''}`; });
             
-            // 얼음 주머니 UI
             const icePouch = document.getElementById('ice-pouch');
             document.getElementById('ice-count-text').innerText = `${state.icePotions} / 2`;
             document.getElementById('ice-frag-text').innerText = `(조각: ${state.icePieces}/2)`;
             if(state.icePotions > 0 && !state.usedIceTurn) { icePouch.classList.remove('disabled'); } else { icePouch.classList.add('disabled'); }
 
-            // [NEW] 만능 주머니 UI
             const omniPouch = document.getElementById('omni-pouch');
             document.getElementById('omni-count-text').innerText = `${state.omniItem} / 1`;
             document.getElementById('omni-frag-text').innerText = `(조각: ${state.omniPieces}/3)`;
@@ -467,7 +592,6 @@
         }
         function showFeedback(s,t){const el=document.getElementById('feedback-overlay');el.innerText=t;el.className=s?'success-anim':'fail-anim';setTimeout(()=>{el.className='';},1500);}
         function closeAll(){document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById('overlay').style.display='none';}
-        function closeResult(){closeAll();}
     </script>
 </body>
 </html>
