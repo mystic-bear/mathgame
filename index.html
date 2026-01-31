@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>동물 숲의 수학 연금술사 : Final Logic Fix</title>
     <style>
-        :root { --primary: #00897b; --secondary: #b2dfdb; --accent: #ff7043; --bg: #e0f2f1; --text: #004d40; }
+        :root { --primary: #FF8A65; --secondary: #FFCCBC; --accent: #9CCC65; --bg: #FFF3E0; --text: #4E342E; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; margin: 0; padding: 10px; user-select: none; color: var(--text); transition: 0.3s; }
         
         body.blocking-mode { pointer-events: none; opacity: 0.9; cursor: wait !important; }
@@ -98,6 +98,55 @@
         #click-blocker { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; cursor: wait; background: rgba(255,255,255,0); }
         
         #result-modal { z-index: 3000; }
+    
+        /* [New] 도감 그리드 및 카드 스타일 */
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
+        }
+        .item-card {
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid #eee;
+            position: relative;
+            cursor: pointer;
+        }
+        .item-card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .item-card img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background-color: #fafafa;
+        }
+        .item-card .name { font-weight: bold; font-size: 13px; margin-bottom: 4px; color: var(--text); word-break: keep-all; line-height: 1.3; }
+        .item-card .desc { font-size: 11px; color: #888; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .item-card .badge {
+            position: absolute; top: -8px; right: -8px; 
+            background: var(--accent); color: white; 
+            font-size: 11px; padding: 3px 8px; border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+        .card-tier-5 { border: 3px solid #FFD54F; background: linear-gradient(135deg, #FFFDE7 0%, #FFFFFF 100%); }
+        .card-tier-3 { border: 3px solid #CFD8DC; background: linear-gradient(135deg, #F5F5F5 0%, #FFFFFF 100%); }
+        .card-tier-1 { border: 3px solid #D7CCC8; }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
     </style>
 </head>
 <body>
@@ -152,8 +201,8 @@
         <h3>📍 어디로 갈까요?</h3>
         <p style="color:#666; font-size:14px; margin-bottom:15px;">(⚠️ 지역 한 곳이 봉쇄되었습니다)</p>
         <div style="display:flex; gap:10px; justify-content: center;">
-            <button id="loc-fire" onclick="startMath('fire')" style="background:#ffccbc; width:100px; height:100px;">🔥 화산<br><span style="font-size:12px;">(곱셈 Hard)</span></button>
-            <button id="loc-ice" onclick="startMath('ice')" style="background:#b3e5fc; width:100px; height:100px;">❄️ 동굴<br><span style="font-size:12px;">(나눗셈 Hard)</span></button>
+            <button id="loc-fire" onclick="startMath('fire')" style="background:#ffccbc; width:100px; height:100px;">🔥 화산<br><span style="font-size:12px;">(곱셈)</span></button>
+            <button id="loc-ice" onclick="startMath('ice')" style="background:#b3e5fc; width:100px; height:100px;">❄️ 동굴<br><span style="font-size:12px;">(나눗셈)</span></button>
             <button id="loc-herb" onclick="startMath('herb')" style="background:#c8e6c9; width:100px; height:100px;">🌿 숲<br><span style="font-size:12px;">(심화)</span></button>
         </div>
         <button onclick="closeAll()" style="margin-top:20px; background:#ddd;">취소</button>
@@ -182,11 +231,46 @@
     </div>
 
     <script>
-        const SYLVANIAN_DB = {
-            tier5: ["🏠 빨간 지붕 이층집", "💡 불이 들어오는 2층집", "🏰 캐슬 유치원", "🚲 하늘을 나는 자전거", "🏛️ 엘레강스 타운 마너", "🏬 그랜드 백화점", "🚢 씨사이드 크루즈", "🏘️ 3층집 기프트 세트", "🏕️ 비밀의 숲 오두막", "🎠 유원지 로열 마차"],
-            tier3: ["🐰 초콜릿 토끼 가족", "🐿️ 호두다람쥐 가족", "🚐 패밀리 캠핑카", "🚌 유치원 버스", "🍳 주방 요리 세트", "🩺 시골 병원 선생님", "🌲 모험가의 트리하우스", "🛒 숲속의 마켓", "🛋️ 거실 소파 세트", "🛁 앤티크 욕실 세트"],
-            tier1: ["🐱 아기 페르시안", "🐰 아기 밀크 토끼", "👶 쌍둥이 초콜릿 토끼", "🎒 유치원 모자와 가방", "🍱 피크닉 도시락", "🎻 미니 바이올린", "🚲 세발 자전거", "🛏️ 아기 침대", "🍰 딸기 케이크", "🛒 장난감 유모차"]
-        };
+        
+    const SYLVANIAN_DB = {
+        tier5: [
+            { name: "빨간 지붕 이층집", img: "https://mystic-bear.github.io/mathgame/빨간지붕이층집.jpg", desc: "실바니안 마을의 상징! 아주 큰 집.", score: 5 },
+            { name: "불이 들어오는 2층집", img: "https://mystic-bear.github.io/mathgame/불들어오는이층집.jpg", desc: "밤에도 환하게 빛나는 멋진 집.", score: 5 },
+            { name: "캐슬 유치원", img: "https://placehold.co/150/FFD54F/FFFFFF?text=Castle+School", desc: "궁전처럼 예쁜 유치원이에요.", score: 5 },
+            { name: "하늘을 나는 자전거", img: "https://placehold.co/150/FFD54F/FFFFFF?text=Flying+Bike", desc: "구름 위를 달리는 신비한 자전거.", score: 5 },
+            { name: "엘레강스 타운 마너", img: "https://placehold.co/150/FFD54F/FFFFFF?text=Town+Manor", desc: "우아하고 고급스러운 2층 저택.", score: 5 },
+            { name: "그랜드 백화점", img: "https://placehold.co/150/FFD54F/FFFFFF?text=Grand+Store", desc: "없는 게 없는 커다란 백화점.", score: 5 },
+            { name: "씨사이드 크루즈", img: "https://placehold.co/150/FFD54F/FFFFFF?text=Seaside+Cruise", desc: "바다를 여행하는 멋진 배.", score: 5 },
+            { name: "3층집 기프트 세트", img: "https://placehold.co/150/FFD54F/FFFFFF?text=Gift+Set", desc: "선물이 가득 담긴 3층 집.", score: 5 },
+            { name: "비밀의 숲 오두막", img: "https://placehold.co/150/FFD54F/FFFFFF?text=Forest+Hut", desc: "숲속 깊은 곳 나만의 아지트.", score: 5 },
+            { name: "유원지 로열 마차", img: "https://placehold.co/150/FFD54F/FFFFFF?text=Royal+Carriage", desc: "공주님이 타고 다니는 화려한 마차.", score: 5 }
+        ],
+        tier3: [
+            { name: "초콜릿 토끼 가족", img: "https://placehold.co/150/90A4AE/FFFFFF?text=Rabbit+Fam", desc: "귀 끝이 초콜릿 색인 다정한 가족.", score: 3 },
+            { name: "호두다람쥐 가족", img: "https://placehold.co/150/90A4AE/FFFFFF?text=Squirrel+Fam", desc: "볼이 통통한 귀여운 다람쥐 가족.", score: 3 },
+            { name: "패밀리 캠핑카", img: "https://placehold.co/150/90A4AE/FFFFFF?text=Camping+Car", desc: "가족 여행을 떠나는 핑크색 밴.", score: 3 },
+            { name: "유치원 버스", img: "https://placehold.co/150/90A4AE/FFFFFF?text=Kindy+Bus", desc: "무지개 미끄럼틀이 달린 버스.", score: 3 },
+            { name: "주방 요리 세트", img: "https://placehold.co/150/90A4AE/FFFFFF?text=Kitchen+Set", desc: "맛있는 요리를 만드는 주방 도구들.", score: 3 },
+            { name: "시골 병원 선생님", img: "https://placehold.co/150/90A4AE/FFFFFF?text=Doctor", desc: "아픈 친구들을 치료해줘요.", score: 3 },
+            { name: "모험가의 트리하우스", img: "https://placehold.co/150/90A4AE/FFFFFF?text=Tree+House", desc: "나무 위 비밀 기지에서 모험을!", score: 3 },
+            { name: "숲속의 마켓", img: "https://placehold.co/150/90A4AE/FFFFFF?text=Forest+Market", desc: "맛있는 과일과 채소가 가득해요.", score: 3 },
+            { name: "거실 소파 세트", img: "https://placehold.co/150/90A4AE/FFFFFF?text=Sofa+Set", desc: "푹신푹신 편안한 휴식 공간.", score: 3 },
+            { name: "앤티크 욕실 세트", img: "https://placehold.co/150/90A4AE/FFFFFF?text=Bath+Set", desc: "고풍스럽고 예쁜 욕조와 세면대.", score: 3 }
+        ],
+        tier1: [
+            { name: "아기 페르시안", img: "https://placehold.co/150/A1887F/FFFFFF?text=Baby+Cat", desc: "복슬복슬 하얀 털이 매력적이에요.", score: 1 },
+            { name: "아기 밀크 토끼", img: "https://placehold.co/150/A1887F/FFFFFF?text=Baby+Rabbit", desc: "우유처럼 하얀 아기 토끼.", score: 1 },
+            { name: "쌍둥이 초콜릿 토끼", img: "https://placehold.co/150/A1887F/FFFFFF?text=Twin+Rabbit", desc: "장난꾸러기 쌍둥이 아기들.", score: 1 },
+            { name: "유치원 모자와 가방", img: "https://placehold.co/150/A1887F/FFFFFF?text=School+Bag", desc: "학교 갈 준비 완료!", score: 1 },
+            { name: "피크닉 도시락", img: "https://placehold.co/150/A1887F/FFFFFF?text=Lunch+Box", desc: "소풍 가서 먹으면 더 맛있어요.", score: 1 },
+            { name: "미니 바이올린", img: "https://placehold.co/150/A1887F/FFFFFF?text=Violin", desc: "아름다운 음악을 연주해요.", score: 1 },
+            { name: "세발 자전거", img: "https://placehold.co/150/A1887F/FFFFFF?text=Tricycle", desc: "쌩쌩~ 공원을 달려요.", score: 1 },
+            { name: "아기 침대", img: "https://placehold.co/150/A1887F/FFFFFF?text=Baby+Bed", desc: "새근새근 좋은 꿈 꾸세요.", score: 1 },
+            { name: "딸기 케이크", img: "https://placehold.co/150/A1887F/FFFFFF?text=Cake", desc: "달콤하고 맛있는 간식 시간.", score: 1 },
+            { name: "장난감 유모차", img: "https://placehold.co/150/A1887F/FFFFFF?text=Toy+Stroller", desc: "아기 인형을 태우고 산책해요.", score: 1 }
+        ]
+    };
+
         const POTIONS = {
             red: { name: '용기물약', icon: '🔴', cost: { fire: 1 } },
             blue: { name: '지혜물약', icon: '🔵', cost: { ice: 1 } },
@@ -592,6 +676,97 @@
         }
         function showFeedback(s,t){const el=document.getElementById('feedback-overlay');el.innerText=t;el.className=s?'success-anim':'fail-anim';setTimeout(()=>{el.className='';},1500);}
         function closeAll(){document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById('overlay').style.display='none';}
-    </script>
+    
+    // [업데이트] 가차 함수: 객체를 반환하도록 수정
+    function drawGacha(rank, isSpeed) {
+        const r = Math.floor(Math.random() * 100) + 1;
+        let tier = 'tier1';
+        
+        if (isSpeed) {
+            if (rank === 'gold') { tier = 'tier5'; }
+            else if (rank === 'silver') { tier = r <= 30 ? 'tier5' : 'tier3'; }
+            else { if (r <= 15) tier = 'tier5'; else if (r <= 50) tier = 'tier3'; else tier = 'tier1'; }
+        } else {
+            if (rank === 'gold') { tier = r <= 70 ? 'tier5' : 'tier3'; }
+            else if (rank === 'silver') { if (r <= 20) tier = 'tier5'; else if (r <= 70) tier = 'tier3'; }
+            else { if (r <= 10) tier = 'tier5'; else if (r <= 30) tier = 'tier3'; }
+        }
+        
+        const list = SYLVANIAN_DB[tier];
+        const item = list[Math.floor(Math.random() * list.length)];
+        return { ...item, pts: item.score, tier: tier }; 
+    }
+
+    // [업데이트] 도감 열기 함수 (그리드 뷰)
+    function openCollection() {
+        const modal = document.getElementById('result-modal');
+        const title = document.getElementById('result-title');
+        const content = document.getElementById('result-content');
+        
+        title.innerText = "📚 내 수집품 도감 (" + state.collection.length + "개)";
+        
+        if (state.collection.length === 0) {
+            content.innerHTML = `
+                <div style="text-align:center; padding:40px; color:#888;">
+                    <div style="font-size:40px; margin-bottom:10px;">🎒</div>
+                    <p>아직 모은 아이템이 없어요!</p>
+                    <p>수학 모험을 통해 보물상자를 찾아보세요.</p>
+                </div>`;
+        } else {
+            let html = '<div class="collection-grid">';
+            const myItems = [...state.collection].reverse(); // 최신순
+            
+            myItems.forEach(item => {
+                const imgUrl = item.img || 'https://placehold.co/100x100?text=No+Image';
+                html += `
+                <div class="item-card card-tier-${item.score}">
+                    <div class="badge">${item.score}점</div>
+                    <img src="${imgUrl}" alt="${item.name}">
+                    <div class="name">${item.name}</div>
+                    <div class="desc">${item.desc}</div>
+                </div>
+                `;
+            });
+            html += '</div>';
+            content.innerHTML = html;
+        }
+        document.getElementById('overlay').style.display = 'block';
+        modal.style.display = 'block';
+    }
+
+    // [업데이트] 획득 팝업 함수 (이미지 포함)
+    function showResultModal(item, rank) {
+        const modal = document.getElementById('result-modal');
+        const title = document.getElementById('result-title');
+        const content = document.getElementById('result-content');
+        
+        title.innerText = "✨ 아이템 획득! ✨";
+        
+        const imgUrl = item.img || 'https://placehold.co/150x150?text=Gift';
+        const tierText = item.score === 5 ? "최고급 아이템!" : item.score === 3 ? "멋진 아이템!" : "귀여운 아이템!";
+        const tierColor = item.score === 5 ? "#FFD700" : item.score === 3 ? "#90A4AE" : "#A1887F";
+
+        content.innerHTML = `
+            <div style="text-align:center; animation: popIn 0.5s;">
+                <div style="font-size:16px; color:#666; margin-bottom:5px;">
+                    ${rank === 'gold' ? '🏆 황금 상자' : rank === 'silver' ? '🥈 은 상자' : '📦 나무 상자'}에서 발견!
+                </div>
+                <div style="font-size:20px; font-weight:bold; color:${tierColor}; margin-bottom:15px;">
+                    ${tierText}
+                </div>
+                <div class="item-card card-tier-${item.score}" style="width:180px; margin:0 auto; transform:scale(1.1);">
+                    <img src="${imgUrl}" style="height:120px;">
+                    <div class="name" style="font-size:16px;">${item.name}</div>
+                    <div class="desc" style="-webkit-line-clamp: 3;">${item.desc}</div>
+                </div>
+                <div style="margin-top:20px; font-weight:bold; color:var(--primary); font-size:24px;">
+                    +${item.score}점
+                </div>
+            </div>
+        `;
+        document.getElementById('overlay').style.display = 'block';
+        modal.style.display = 'block';
+    }
+</script>
 </body>
 </html>
